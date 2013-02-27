@@ -161,7 +161,7 @@
                 }(option);
 
                 var chapter =           this.modelStory.getChapter(option.index);
-                var chapterImages =     this.modelStory.getChapterImages(chapter.id);
+                var chapterImages =     this.modelStory.getChapterImages(chapter);
                 this.currentImages =    [];
                 this.editChapterId =    chapter.id;
 
@@ -289,7 +289,7 @@
                     var chapterRow = $('<div class="field-main-row clearfix"></div>').html(template).appendTo(self.body).attr("id", "chapter-row-" + index);
                     var photos = chapterRow.find('.story-input-photos');
                     var imagesFound = false;
-                    var chapterImages = self.modelStory.getChapterImages(chapter.id);
+                    var chapterImages = self.modelStory.getChapterImages(chapter);
 
                     $.each(chapterImages, function(index, chapterImage){
                         photos.append(utils.scaleByHeight(chapterImage.image, 50).addClass('story-summary-photo'));

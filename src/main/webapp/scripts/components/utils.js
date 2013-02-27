@@ -83,13 +83,16 @@ define(
                     cdn_subdomain: true}).attr('width', wh.width).attr('height', wh.height);
                 else return $('<img />').attr('src', image.storyUrl).attr('width', wh.width).attr('height', wh.height);
             },
-            getProfilePhotoUrl: function(echoedUser, urls){
+            getProfilePhotoUrl: function(echoedUser, urls) {
+                var defaultImage = urls.images + "/profile_default.jpg";
+                if (!echoedUser) return defaultImage;
+                 
                 if (echoedUser.facebookId) {
                     return "http://graph.facebook.com/" + echoedUser.facebookId + "/picture";
                 } else if (echoedUser.twitterId) {
                     return "http://api.twitter.com/1/users/profile_image/" + echoedUser.twitterId;
                 } else {
-                    return urls.images + "/profile_default.jpg";
+                    return defaultImage;
                 }
             },
             arraySize: function(array){

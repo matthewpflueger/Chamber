@@ -7,12 +7,12 @@ require(
         'routers/admin',
         'components/errorLog',
         'components/admin/moderate',
-        'components/story',
         'components/admin/partnerList',
         'components/admin/echoedUsers',
-        'models/user'
+        'models/user',
+        'views/item/item'
     ],
-    function(require, $, Backbone, _, Router, ErrorLog, Moderate, Story, PartnerList, EchoedUsers, ModelUser){
+    function(require, $, Backbone, _, Router, ErrorLog, Moderate, PartnerList, EchoedUsers, ModelUser, Item) {
         $(document).ready(function(){
             var EventAggregator = _.extend({}, Backbone.Events);
 
@@ -24,7 +24,7 @@ require(
             this.errorLog = new ErrorLog({ EvAg: EventAggregator, properties: properties });
             this.router = new Router({ EvAg: EventAggregator, properties: properties });
             this.moderate = new Moderate({ el: "#moderate", EvAg: EventAggregator, properties: properties });
-            this.story = new Story({ el: '#story-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
+            this.item = new Item({ el: '#item-container', EvAg: EventAggregator, properties: properties, modelUser: this.modelUser});
             this.partners = new PartnerList({ el: "#partnerList", EvAg: EventAggregator, properties: properties });
             this.echoedUsers = new EchoedUsers({ el: "#echoedUsers", EvAg: EventAggregator, properties: properties });
             Backbone.history.start();
