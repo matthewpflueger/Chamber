@@ -97,4 +97,5 @@ case class Story(
 object Story {
     val storyContentDescription =   new ContentDescription("Story", "Stories" ,"stories")
     val reviewContentDescription =  new ContentDescription("Review", "Reviews" ,"reviews")
+    val defaultContentDescriptions = List(storyContentDescription, reviewContentDescription)
 }
