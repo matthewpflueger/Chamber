@@ -149,7 +149,7 @@ define(
                         case "Story":
                             var storyDiv =                  $('<div></div>').addClass('item_wrap');
                             var modelStory =                new ModelStory(content, { properties: self.properties});
-                            var storyComponent =            new Forum({
+                            var storyComponent =            new StoryBrief({
                                                                 el:         storyDiv,
                                                                 data:       content,
                                                                 EvAg:       self.EvAg,
@@ -198,6 +198,22 @@ define(
                                 .addClass('clearfix');
                             contentFragment.append(a);
                             break;
+                        default:
+                            var contentDiv =                  $('<div></div>').addClass('item_wrap');
+                            var modelStory =                new ModelStory(content, { properties: self.properties});
+                            var contentComponent =            new Forum({
+                                el:         contentDiv,
+                                data:       content,
+                                EvAg:       self.EvAg,
+                                Personal:   self.personal,
+                                properties: self.properties,
+                                modelUser:  self.modelUser,
+                                modelStory: modelStory
+                            });
+                            self.content.hash[content.id] = self.content.array.length;
+                            self.content.array.push(modelStory);
+                            contentFragment.append(contentDiv);
+                            break
                     }
                     contentAdded = true;
                 });

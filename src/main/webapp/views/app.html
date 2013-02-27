@@ -6,6 +6,7 @@
         //{{>echoed_setup}}//
     </script>
     {{#scriptTag}}applet.js{{/scriptTag}}
+    <link rel="stylesheet" href="{{urls.css}}/applet.background.css" />
 </head>
 <body style="height: 100%; width: 100%; overflow: hidden;" >
     <iframe sandbox="" src="{{domain}}" id="echoed-background" frameborder="0" scrolling="no" style="display: none;"></iframe>
@@ -15,4 +16,3 @@
     window.onbeforeunload = function(){
     }
 </script>
-

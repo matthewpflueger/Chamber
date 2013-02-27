@@ -5,7 +5,7 @@
             <strong>Title</strong>
         </div>
         <div class="story-input-content">
-            <input class="field-text-input" id="story-name" type="text" placeholder="Give Your Story a Title" value="{{story.title}}">
+            <input class="field-text-input" id="story-name" type="text" placeholder="Give Your {{#context.contentType}}{{singular}}{{/context.contentType}} a Title" value="{{story.title}}">
         </div>
     </div>
     <div class="story-detail-row">

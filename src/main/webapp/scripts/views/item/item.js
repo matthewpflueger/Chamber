@@ -64,6 +64,7 @@ define(
                         this.photoView.load({ modelPhoto: this.modelContent });
                         break;
                     case "Story":
+                    default:
                         this.storyView.load({ modelStory: this.modelContent });
                         break;
                 }
