@@ -12,7 +12,7 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
-                this.element = $(options.el);
+                this.element =      $(options.el);
                 this.properties =   options.properties;
                 this.modelContext = options.modelContext;
                 this.modelUser =    options.modelUser;
@@ -29,36 +29,50 @@ define(
             },
             render: function(){
 
-                var content = this.modelContext.get("content");
-                var contentType = this.modelContext.get("contentType");
+                var content =       this.modelContext.get("content");
+                var contentType =   this.modelContext.get("contentType");
+
+
                 if(contentType !== null){
                     $.each(content, function(index, c) {
-                        if(c.name === contentType.plural) content[index].isActive = true;
+                        if(c.name === contentType.plural) {
+                            content[index].isActive = true;
+                        }
                     });
                 }
 
                 var view = {
-                    context: this.modelContext.toJSON(),
-                    baseUrl: this.modelContext.baseUrl(),
-                    c: content
+                    context:    this.modelContext.toJSON(),
+                    baseUrl:    this.modelContext.baseUrl(),
+                    c:          content
                 };
+
                 this.element.html(templateTitle(view));
                 this.follow = new Follow({
-                    el: "#title-follow",
-                    EvAg: this.EvAg,
+                    el:         "#title-follow",
+                    EvAg:       this.EvAg,
                     properties: this.properties,
-                    modelUser: this.modelUser,
-                    followId: this.modelContext.id,
-                    type: this.modelContext.get("contextType")
+                    modelUser:  this.modelUser,
+                    followId:   this.modelContext.id,
+                    type:       this.modelContext.get("contextType")
                 });
                 if(view.context.contextType === "partner") {
                     this.modelPartner.set(view.context.partner);
                 } else {
                     this.modelPartner.set({
-                        name: "Echoed",
+                        name:   "Echoed",
                         domain: "www.echoed.com"
                     });
                 }
+
+                if( contentType.singular === "Photo" ){
+                    $('#title-action-button').hide();
+                } else {
+                    $('#title-action-button').show();
+                }
+
+
+
                 this.element.show();
             },
             hide: function(){
