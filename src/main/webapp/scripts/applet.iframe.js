@@ -15,34 +15,64 @@ require(
         'components/title',
         'components/login',
         'components/user',
+        'components/nav',
+        'views/page/page',
+        'views/header/header',
         'routers/app',
         'models/user',
         'models/context',
+        'models/partner',
         'easyXDM',
         'isotopeConfig'
     ],
-    function(requireLib, $, Backbone, _, isotope, ErrorLog, InfiniteScroll, Exhibit, Item, Input, MessageHandler, WidgetCloser, Title, Login, User, Router, ModelUser, ModelContext, easyXDM){
+    function(requireLib,
+             $,
+             Backbone,
+             _,
+             isotope,
+             ErrorLog,
+             InfiniteScroll,
+             Exhibit,
+             Item,
+             Input,
+             MessageHandler,
+             WidgetCloser,
+             Title,
+             Login,
+             User,
+             Nav,
+             Page,
+             Header,
+             Router,
+             ModelUser,
+             ModelContext,
+             ModelPartner,
+             easyXDM){
 
         $(document).ready(function(){
             this.EventAggregator = _.extend({}, Backbone.Events);
+            this.urls = Echoed.urls;
+
+            //Initialize Models
+            this.modelUser = new ModelUser(Echoed.echoedUser,   { urls: this.urls });
+            this.modelContext = new ModelContext({},            { urls: this.urls });
+            this.modelPartner = new ModelPartner({ name: "Echoed" },            { urls: this.urls });
 
             this.properties = {
-                urls: Echoed.urls,
+                urls: this.urls,
                 echoedUser: Echoed.echoedUser,
                 isOverlay:  true
             };
 
-            //Initialize Models
-            this.modelUser = new ModelUser(Echoed.echoedUser, {properties: this.properties });
-            this.modelContext = new ModelContext({}, {properties : this.properties });
-            this.modelUser.isLoggedIn();
+
 
             //Options
             this.options = function(el){
                 var opt = {
-                    properties: this.properties,
-                    modelUser: this.modelUser,
-                    modelContext: this.modelContext,
+                    properties:     this.properties,
+                    modelUser:      this.modelUser,
+                    modelContext:   this.modelContext,
+                    modelPartner:      this.modelPartner,
                     EvAg: this.EventAggregator
                 };
                 if(el) opt.el = el;
@@ -51,13 +81,14 @@ require(
             this.errorLog = new ErrorLog(this.options());
             this.exhibit = new Exhibit(this.options('#exhibit'));
             this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
+            this.nav = new Nav(this.options());
             this.input = new Input(this.options('#field-container'));
-            this.user = new User(this.options('#user'));
             this.item = new Item(this.options('#item-container'));
-            this.closer = new WidgetCloser(this.options('#close'));
             this.titleNav = new Title(this.options('#title-container'));
             this.login = new Login(this.options("#login-container"));
+            this.page = new Page(this.options());
             this.router = new Router(this.options());
+            this.header = new Header(this.options("#header-container"));
 
             var iFrameNode = document.createElement('iframe');
 

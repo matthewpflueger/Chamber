@@ -60,7 +60,10 @@ define(
                             self.render();
                         }
                     });
+                } else {
+                    this.element.hide();
                 }
+
             },
             events: {
                 "click .notification": "redirect",

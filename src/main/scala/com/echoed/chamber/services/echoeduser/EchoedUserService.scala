@@ -76,9 +76,9 @@ class EchoedUserService(
     private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-    private val followingContentManager =   new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
-    private val publicContentManager =      new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
-    private val privateContentManager =     new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val followingContentManager =   new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
+    private val publicContentManager =      new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
+    private val privateContentManager =     new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
 
     private var contentLoaded =         false
     private var customContentLoaded =   false
@@ -93,9 +93,10 @@ class EchoedUserService(
         unstashAll()
     }
 
-    private def userContext = {
+    private def userContext(contentType: ContentDescription) = {
         new UserContext(
             echoedUser,
+            contentType,
             getStats ::: publicContentManager.getStats,
             publicContentManager.getHighlights,
             publicContentManager.getContentList)
@@ -363,6 +364,7 @@ class EchoedUserService(
                 val cf = new Feed(
                             new SelfContext(
                                 echoedUser,
+                                _type,
                                 stats,
                                 privateContentManager.getHighlights,
                                 privateContentManager.getContentList
@@ -380,6 +382,7 @@ class EchoedUserService(
                 val content = followingContentManager.getContent(_type, page)
                 val sf = new Feed(
                             new PersonalizedContext(
+                                _type,
                                 followingContentManager.getStats,
                                 followingContentManager.getHighlights,
                                 followingContentManager.getContentList
@@ -404,7 +407,7 @@ class EchoedUserService(
                 getContent
             } else {
                 val content =   publicContentManager.getContent(_type, page)
-                val sf =        new Feed(userContext, content._1, content._2)
+                val sf =        new Feed(userContext(_type), content._1, content._2)
                 sender ! RequestUserContentFeedResponse(msg, Right(sf))
             }
 
@@ -572,15 +575,15 @@ class EchoedUserService(
 
 
         case msg: RequestUsersFollowed =>
-            val f = new Feed(userContext, followingUsers, null)
+            val f = new Feed(userContext(null), followingUsers, null)
             sender ! RequestUsersFollowedResponse(msg, Right(f))
 
         case msg: RequestFollowers =>
-            val f = new Feed(userContext, followedByUsers, null)
+            val f = new Feed(userContext(null), followedByUsers, null)
             sender ! RequestFollowersResponse(msg, Right(f))
 
         case msg: RequestPartnersFollowed =>
-            val f = new Feed(userContext, followingPartners, null)
+            val f = new Feed(userContext(null), followingPartners, null)
             sender ! RequestPartnersFollowedResponse(msg, Right(f))
 
         case msg @ FollowPartner(_, partnerId) =>
@@ -676,9 +679,9 @@ class EchoedUserService(
             activeStories.put(StoryId(story.id), sender)
             Option(story.echoId).map(e => activeStories.put(EchoId(e), sender))
 
-        case msg @ InitStory(_, Some(storyId), _, _, _) => forwardToStory(msg, StoryId(storyId))
-        case msg @ InitStory(_, _, Some(echoId), _, _) => forwardToStory(msg, EchoId(echoId))
-        case msg @ InitStory(_, _, _, partnerId, _) => createStoryService(msg).forward(msg)
+        case msg @ InitStory(_, Some(storyId), _, _, _, _) => forwardToStory(msg, StoryId(storyId))
+        case msg @ InitStory(_, _, Some(echoId), _, _, _) => forwardToStory(msg, EchoId(echoId))
+        case msg @ InitStory(_, _, _, partnerId, _, _) => createStoryService(msg).forward(msg)
 
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>

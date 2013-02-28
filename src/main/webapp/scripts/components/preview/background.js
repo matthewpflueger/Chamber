@@ -15,8 +15,14 @@ define(
                 this.options.EvAg.bind('background/update', this.update);
             },
             update: function(url){
-                if(url.indexOf("http") === -1) url = "http://" + url;
-                this.element.attr("src", url);
+                if(url.indexOf("echoed.com") > -1){
+                    this.element.hide();
+                } else{
+                    if(url.indexOf("http") === -1) url = "http://" + url;
+                    this.element.attr("src", url);
+                    this.element.show();
+                }
+
             },
             show: function(){
                 this.element.show();

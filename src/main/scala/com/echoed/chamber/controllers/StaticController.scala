@@ -15,9 +15,19 @@ class StaticController extends EchoedController {
     @BeanProperty var bookmarkletName: String = _
 
     @RequestMapping(value = Array("/about*"), method = Array(RequestMethod.GET))
-    def getAbout = {
+    def getAbout(@RequestHeader("User-Agent") userAgent: String) = {
         val modelAndView = new ModelAndView(v.whatIsEchoedView)
         modelAndView.addObject("bookmarkletName", bookmarkletName)
+
+        if(userAgent.contains("Chrome")){
+            modelAndView.addObject("isChrome", true)
+        } else if(userAgent.contains("Safari")){
+            modelAndView.addObject("isSafari", true)
+        } else if(userAgent.contains("MSIE")){
+            modelAndView.addObject("isIE", true)
+        } else if(userAgent.contains("Firefox")){
+            modelAndView.addObject("isFirefox", true)
+        }
         modelAndView
     }
 

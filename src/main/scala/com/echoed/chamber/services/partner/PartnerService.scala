@@ -19,7 +19,7 @@ import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.util.datastructure.ContentManager
-import com.echoed.chamber.domain.views.content.{Content, PhotoContent}
+import com.echoed.chamber.domain.views.content.{ContentDescription, Content, PhotoContent}
 
 
 
@@ -42,7 +42,7 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
 
-    private val contentManager = new ContentManager(List(Story.storyContentDescription, PhotoContent.contentDescription))
+    private val contentManager = new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
 
     private var contentLoaded = false
 
@@ -54,6 +54,22 @@ class PartnerService(
             case msg: RegisterPartner => //handled in init
         }
     }
+
+    private def partnerContext(contentType: ContentDescription) = {
+        new PartnerContext(
+            partner,
+            contentType,
+            getStats ::: contentManager.getStats,
+            contentManager.getHighlights,
+            contentManager.getContentList)
+    }
+
+    private def getStats = {
+        var stats = List[Map[String, Any]]()
+        stats = Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers") :: stats
+        stats
+    }
+
 
     private def becomeOnlineAndRegister {
         becomeOnline
@@ -183,11 +199,7 @@ class PartnerService(
             } else {
                 val content =   contentManager.getContent(_type, page)
                 val sf =        new Feed(
-                                    new PartnerContext(
-                                        partner,
-                                        contentManager.getStats,
-                                        contentManager.getHighlights,
-                                        contentManager.getContentList),
+                                    partnerContext(_type),
                                     content._1,
                                     content._2)
                 sender ! RequestPartnerContentResponse(msg, Right(sf))
@@ -195,7 +207,7 @@ class PartnerService(
 
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(
-                        new PartnerContext(partner, contentManager.getStats, contentManager.getHighlights, contentManager.getContentList),
+                        partnerContext(null),
                         followedByUsers,
                         null)
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))

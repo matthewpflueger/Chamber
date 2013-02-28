@@ -13,10 +13,10 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.modelUser = options.modelUser;
-                this.modelUser.on("change:id", this.render);
                 this.el = options.el;
                 this.element = $(this.el);
                 this.render();
+                this.modelUser.on("change:id", this.render);
             },
             render: function(){
                 var echoedUser = this.modelUser.toJSON();

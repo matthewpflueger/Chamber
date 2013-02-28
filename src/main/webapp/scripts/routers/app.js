@@ -15,6 +15,7 @@ define(
                 this.modelUser =    options.modelUser;
                 this.modelContext = options.modelContext;
                 this.colContent =   options.colContent;
+                this.modelUser.on("change", this.change);
                 this.EvAg.bind("hash:reset", this.resetHash);
                 this.EvAg.bind("router/me", this.me);
                 this.currentRequest = null;
@@ -34,6 +35,8 @@ define(
                 "write":                    "write",
                 "me/feed/:type":            "feed",
                 "me/feed/:type/":           "feed",
+                "explore":                  "explore",
+                "!explore":                 "explore",
                 ":context/:id":             "content",
                 ":context/:id/":            "content",
                 ":context/:id/:type":       "content",
@@ -42,6 +45,9 @@ define(
             },
             fix: function(){
                 window.location.href = "#";
+            },
+            change: function(){
+                this.feed();
             },
             content: function(context, id, type, type2){
                 var self =      this;
@@ -62,24 +68,34 @@ define(
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
                 var timeStamp = new Date().getTime().toString();
                 self.currentRequest = timeStamp;
+                self.EvAg.trigger('infiniteScroll/lock');
                 utils.AjaxFactory({
                     url: jsonUrl,
                     dataType: 'json',
                     success: function(data){
+                        self.EvAg.trigger('infiniteScroll/unlock');
                         if(self.currentRequest === timeStamp) callback(jsonUrl, data, timeStamp);
                     }
                 })();
             },
             loadPage: function(page, options){
-                this.modelContext.set(options.data.context);
+                if(_.isEmpty(options.data.context)){
+                    this.modelContext.clear();
+                } else {
+                    this.modelContext.set(options.data.context);
+                }
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
-                _gaq.push(['_trackPageview', this.page]);
+                try{
+                    _gaq.push(['_trackPageview', this.page]);
+                } catch(e) {
+
+                }
             },
             feed: function(type){
                 var self = this;
+                if(typeof(type) === "object") type = undefined;
                 if(!this.modelUser.isLoggedIn()){
-                    console.log("Explore");
                     this.explore(type);
                 } else {
                     var url = "me/feed";
@@ -87,7 +103,7 @@ define(
                     if(this.page != url){
                         this.page = url;
                         this.requestFeed(url, function(jsonUrl, data){
-                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data });
+                            self.loadPage("explore", { jsonUrl: jsonUrl, data: data, personalized: true });
                         });
                     }
                 }
@@ -122,9 +138,13 @@ define(
                 }
                 this.oldPage = this.page;
                 this.oldTitle = $('title').html();
-                _gaq.push(['_trackPageview', window.location.hash]);
                 this.EvAg.trigger("content:lookup", id);
                 this.EvAg.trigger("page/change", "story");
+                try {
+                    _gaq.push(['_trackPageview', window.location.hash]);
+                } catch(e) {
+
+                }
             },
             resetHash: function(){
                 if(this.oldPage){

@@ -6,11 +6,12 @@ define(
         'models/story',
         'models/photo',
         'components/storyBrief',
+        'views/forum/forum',
         'views/photo/photoBrief',
         'components/utils',
         'isotope'
     ],
-    function($, Backbone, _, ModelStory, ModelPhoto, StoryBrief, PhotoBrief, utils, isotope ){
+    function($, Backbone, _, ModelStory, ModelPhoto, StoryBrief, Forum, PhotoBrief, utils, isotope ){
         return Backbone.View.extend({
             el: '#content',
             initialize: function(options){
@@ -98,7 +99,9 @@ define(
                 this.exhibit.isotope({
                     itemSelector: '.item_wrap',
                     onLayout: function(elems, instance){
-                        $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 });
+                        if(instance.element[0].offsetWidth < instance.width){
+                            $('#title-container').animate({ width: instance.element[0].offsetWidth - 12 });
+                        }
                     }
                 });
                 this.isotopeOn = true;
@@ -195,6 +198,22 @@ define(
                                 .addClass('clearfix');
                             contentFragment.append(a);
                             break;
+                        default:
+                            var contentDiv =                  $('<div></div>').addClass('item_wrap');
+                            var modelStory =                new ModelStory(content, { properties: self.properties});
+                            var contentComponent =            new Forum({
+                                el:         contentDiv,
+                                data:       content,
+                                EvAg:       self.EvAg,
+                                Personal:   self.personal,
+                                properties: self.properties,
+                                modelUser:  self.modelUser,
+                                modelStory: modelStory
+                            });
+                            self.content.hash[content.id] = self.content.array.length;
+                            self.content.array.push(modelStory);
+                            contentFragment.append(contentDiv);
+                            break
                     }
                     contentAdded = true;
                 });

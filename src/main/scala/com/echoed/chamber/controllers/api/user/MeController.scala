@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.content.PhotoContent
+import views.content.{ContentDescription, PhotoContent}
 import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser.FetchNotifications
@@ -100,12 +100,7 @@ class MeController extends EchoedController {
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), Story.storyContentDescription)).onSuccess {
-            case RequestCustomUserFeedResponse(_, Right(sf)) =>
-                result.setResult(sf)
-        }
-        result
+        getFeedContent(Story.storyContentDescription, page, eucc)
     }
 
     @RequestMapping(value = Array("/feed/photos"), method = Array(RequestMethod.GET))
@@ -113,13 +108,29 @@ class MeController extends EchoedController {
     def getFeedPhotos(
                     @RequestParam(value = "page", required = false) page: String,
                     eucc: EchoedUserClientCredentials) = {
+        getFeedContent(PhotoContent.contentDescription, page, eucc)
+    }
+
+    @RequestMapping(value = Array("/feed/reviews"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getFeedReviews(@RequestParam(value = "page", required = false) page: String,
+                       eucc: EchoedUserClientCredentials) = {
+        getFeedContent(Story.reviewContentDescription, page, eucc)
+    }
+
+    def getFeedContent(contentType: ContentDescription,
+                       page: String,
+                       eucc: EchoedUserClientCredentials) = {
+
         val result = new DeferredResult[Feed[PersonalizedContext]](null, ErrorResult.timeout)
-        mp(RequestCustomUserFeed(eucc, parse(page), PhotoContent.contentDescription)).onSuccess {
+        mp(RequestCustomUserFeed(eucc, parse(page), contentType)).onSuccess {
             case RequestCustomUserFeedResponse(_, Right(sf)) =>
                 result.setResult(sf)
         }
         result
+
     }
+
 
     @RequestMapping(value = Array("", "/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
@@ -127,12 +138,8 @@ class MeController extends EchoedController {
                    @RequestParam(value = "page", required = false) page: String,
                    eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), Story.storyContentDescription)).onSuccess {
-            case RequestOwnContentResponse(_, Right(cf)) =>
-                result.setResult(cf)
-        }
-        result
+        getOwnContent(Story.storyContentDescription, page, eucc)
+
     }
 
     @RequestMapping(value = Array("/photos"), method = Array(RequestMethod.GET))
@@ -141,8 +148,26 @@ class MeController extends EchoedController {
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
+        getOwnContent(PhotoContent.contentDescription, page, eucc)
+
+    }
+
+    @RequestMapping(value = Array("/reviews"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getOwnReviews(
+                            @RequestParam(value = "page", required = false) page: String,
+                            eucc: EchoedUserClientCredentials) = {
+
+        getOwnContent(Story.reviewContentDescription, page, eucc)
+
+    }
+
+    def getOwnContent(contentType: ContentDescription,
+                      page: String,
+                      eucc: EchoedUserClientCredentials) = {
+
         val result = new DeferredResult[Feed[SelfContext]](null, ErrorResult.timeout)
-        mp(RequestOwnContent(eucc, parse(page), PhotoContent.contentDescription)).onSuccess {
+        mp(RequestOwnContent(eucc, parse(page), contentType)).onSuccess {
             case RequestOwnContentResponse(_, Right(cf)) =>
                 result.setResult(cf)
         }

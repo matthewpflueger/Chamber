@@ -73,9 +73,9 @@ class StoryService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case msg @ InitStory(_, Some(storyId), _, _, _) => readStory(storyId)
-            case msg @ InitStory(_, _, Some(echoId), _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
-            case msg @ InitStory(_, _, _, partnerId, topicId) => requestStory(partnerId, topicId)
+            case msg @ InitStory(_, Some(storyId), _, _, _, _) => readStory(storyId)
+            case msg @ InitStory(_, _, Some(echoId), _, _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
+            case msg @ InitStory(_, _, _, partnerId, topicId, _) => requestStory(partnerId, topicId)
             case msg: StoryIdentifiable => readStory(msg.storyId)
         }
     }
@@ -103,9 +103,9 @@ class StoryService(
         case msg: InitStory => sender ! InitStoryResponse(msg, Right(storyState.asStoryInfo))
         case msg: CreateStory if (storyState.isCreated) => sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
-        case msg @ CreateStory(eucc, storyId, title, imageId, _, productInfo, community, _, topicId) =>
+        case msg @ CreateStory(eucc, storyId, title, imageId, _, productInfo, community, _, topicId, contentType) =>
             val image = imageId.map(processImage(_))
-            storyState = storyState.create(title, productInfo.orNull, community.orNull, image)
+            storyState = storyState.create(title, productInfo.orNull, community.orNull, image, contentType.orNull)
             ep(StoryCreated(storyState))
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
             notifyStoryUpdate(eucc)

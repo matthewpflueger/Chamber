@@ -14,7 +14,13 @@ define(
                 } else {
                     return false;
                 }
-
+            },
+            getContentType: function(){
+                if(this.has("contentType")) {
+                    return this.get("contentType");
+                } else {
+                    return null;
+                }
             }
         })
     }

@@ -72,7 +72,7 @@ class FeedService(
                 .getOrElse(List[StoryPublic]())
                 .toList
         val nextPage = getNextPage(start, page, stories)
-        Feed(new PublicContext(), stories.slice(start, start + pageSize), nextPage)
+        Feed(new PublicContext(null), stories.slice(start, start + pageSize), nextPage)
     }
 
     private def getStoryIdsFromLookup(indexKey: IndexKey) = {

@@ -17,7 +17,7 @@ define(
                 parentWidth;
 
             var cols = Math.floor( parentWidth / colW );
-            cols = Math.max( cols, 4 );
+//            cols = Math.max( cols, 4 );
 
             // i.e. this.masonry.cols = ....
             this.masonry.cols = cols;

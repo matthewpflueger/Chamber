@@ -14,14 +14,15 @@ define(
                 _.bindAll(this);
 
                 this.modelUser =    options.modelUser;
+                this.modelPartner = options.modelPartner;
                 this.EvAg =         options.EvAg;
                 this.element =      $(options.el);
                 this.properties =   options.properties;
 
                 this.element.html(tmpItem());
                 this.body =         $('#item-body');
-                this.photoView =    new PhotoView({ el: this.body, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties });
-                this.storyView =    new StoryView({ el: this.body, modelUser: this.modelUser, EvAg: this.EvAg, properties: this.properties });
+                this.photoView =    new PhotoView({ el: this.body, modelUser: this.modelUser, modelPartner: this.modelPartner, EvAg: this.EvAg, properties: this.properties });
+                this.storyView =    new StoryView({ el: this.body, modelUser: this.modelUser, modelPartner: this.modelPartner, EvAg: this.EvAg, properties: this.properties });
 
                 this.EvAg.bind("content:show", this.load);
                 this.EvAg.bind("content:hide", this.close);
@@ -63,6 +64,7 @@ define(
                         this.photoView.load({ modelPhoto: this.modelContent });
                         break;
                     case "Story":
+                    default:
                         this.storyView.load({ modelStory: this.modelContent });
                         break;
                 }
@@ -73,8 +75,8 @@ define(
                 
                 if (!this.hasPrevious) $("div[act='previous']").hide();
                 else $("div[act='previous']").show();
-                
                 this.element.show();
+                $('#content').hide();
             },
             close: function(){
                 var self = this;
@@ -82,6 +84,7 @@ define(
                     $("body").removeClass("noScroll");
                     self.body.empty();
                 });
+                $('#content').show();
                 this.EvAg.trigger('hash:reset');
             }
         });

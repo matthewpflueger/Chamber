@@ -96,7 +96,7 @@
         padding: 5px 10px;
         li{
             list-style: none;
-            @include fontTextBold(12px);
+            background-color: #CCC;
             padding: 5px 7px;
             border-radius: 5px;
             margin-right: 5px;
@@ -104,20 +104,20 @@
             @include transition;
             cursor: pointer;
             border: 1px solid #000;
-
-            a{
+            @include fontTextBold(13px, #111);
+            a {
                 text-decoration: none;
-                color: inherit;
+                color:           inherit;
             }
-            &:hover{
+            &:hover {
                 //background-color: rgba(255, 255, 255, 0.3);
-                background-color: rgba(0, 0, 0, 0.6);
+                background-color: rgba(0, 0, 0, 0.8);
                 color: #FFF;
             }
 
-            &.selected{
-                background-color: #333;
-                //background-color: rgba(255, 255, 255, 1);
+            &.selected {
+                background-color: #111;
+                text-shadow: 0px -1px rgba(0, 0, 0, 0.4);
                 color: #FFF;
             }
         }

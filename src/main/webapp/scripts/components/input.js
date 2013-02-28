@@ -110,7 +110,7 @@
                 var self = this;
                 self.element.empty();
                 self.locked = false;
-                self.template = templateSummary();
+                self.template = templateSummary({ context: this.modelContext.toJSON()});
                 self.element.html(self.template);
 
                 self.cover = $('#field-summary-cover');
@@ -307,7 +307,7 @@
                 var story = this.modelStory.get("story");
                 var partner  = this.modelStory.get("partner");
 
-                var template = templateStoryCoverInput({ story: story, topic: topic, partner: partner});
+                var template = templateStoryCoverInput({ story: story, topic: topic, partner: partner, context: this.modelContext.toJSON()});
 
                 self.cover.fadeOut(function(){
                     $(this).html(template);
@@ -335,7 +335,8 @@
                     var storyData = {
                         storyId: this.modelStory.id,
                         title: title,
-                        partnerId: partnerId
+                        partnerId: partnerId,
+                        contentType: this.modelContext.getContentType().singular
                     };
 
                     var imageId = $('#story-input-imageId').val();

@@ -34,7 +34,7 @@ class ExhibitController extends EchoedController {
                 val modelAndView = if(mobileUserAgents.exists(userAgent.contains(_))){
                     new ModelAndView(v.mobileUserView)
                 } else {
-                    new ModelAndView(v.closetView)
+                    new ModelAndView(v.appView)
                 }
 
                 Option(eucc).map(modelAndView.addObject("echoedUser", _)).getOrElse(modelAndView)

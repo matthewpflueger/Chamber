@@ -1,0 +1,60 @@
+.itemForum {
+    width: 1200px;
+    background-color: #FFF;
+    border-bottom: 1px solid #CCC;
+    margin: 0;
+    cursor: pointer;
+
+    .forumContent{
+        padding: 10px 10px 5px 10px;
+        .forumTitle{
+            @include fontTitle(20px);
+            line-height: 35px;
+        }
+        .forumText{
+            margin: 5px 0px;
+            margin-right: 150px;
+        }
+        .forumUser{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            .forumUserText{
+                @include fontTextBold(12px);
+                vertical-align: middle;
+                margin-right: 5px;
+                text-decoration:none;
+                &:hover{
+                    color: $colorEC;
+                }
+            }
+            .forumUserImage{
+                vertical-align: middle;
+                border: 1px solid #CCC;
+                &:hover{
+                    border-color: $colorEC;
+                }
+            }
+
+        }
+    }
+    .forumFooter{
+        margin-top: 10px;
+        .forumComments{
+            @include fontTextBold(12px, #AAA);
+        }
+        .forumPartner{
+            float: right;
+            @include fontTextBold(12px, #AAA);
+            text-decoration: none;
+            &:hover{
+                color: $colorEC;
+            }
+        }
+    }
+
+    &:hover{
+        background-color: #F0F0F0;
+    }
+}
+

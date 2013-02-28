@@ -11,8 +11,13 @@ define(
             initialize: function(options){
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
+                this.modelPartner = options.modelPartner;
+
+                if(this.modelPartner){
+                    this.modelPartner.on("change", this.pageChange);
+                }
+
                 this.EvAg.bind('msg/send', this.sendMessage);
-                this.EvAg.bind("page:change", this.pageChange);
                 this.properties = options.properties;
                 if(window.addEventListener){
                     window.addEventListener('message', this.receiveMessageResponse , false);
@@ -35,8 +40,9 @@ define(
                 });
 
             },
-            pageChange: function(page){
-                this.sendMessage("contextChange", page);
+            pageChange: function(){
+                var partner = this.modelPartner.toJSON();
+                this.sendMessage("contextChange", partner.domain);
             },
             sendMessage: function(type, data){
                 this.socket.postMessage(JSON.stringify({ type: type, data: data}));
