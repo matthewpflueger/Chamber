@@ -89,6 +89,7 @@ case class Story(
         cType match {
             case "Story" =>  Story.storyContentDescription
             case "Review" => Story.reviewContentDescription
+            case _ =>        Story.storyContentDescription
         }
     }
 
