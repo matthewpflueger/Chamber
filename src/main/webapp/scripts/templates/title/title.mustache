@@ -20,7 +20,18 @@
         <div id="title-stats">
             <ul>
                 {{#stats}}
-                <li><span class="title-stats-label">{{name}}</span><span class="title-stats-text">{{#path}}<a href="#{{baseUrl}}{{path}}">{{value}}</a></span>{{/path}}{{^path}}{{value}}{{/path}}</li>
+                <li>
+                    {{#path}}
+                        <a href="#{{baseUrl}}{{path}}">
+                            <span class="title-stats-label">{{name}}</span>
+                            <span class="title-stats-text">{{value}}</span>
+                        </a>
+                    {{/path}}
+                    {{^path}}
+                        <span class="title-stats-label">{{name}}</span>
+                        <span class="title-stats-text">{{value}}</span>
+                    {{/path}}
+                </li>
                 {{/stats}}
             </ul>
         </div>
@@ -35,7 +46,7 @@
     <div id="title-nav" class="clearfix">
         <ul>
             {{#c}}
-                <li {{#isActive}}class="selected"{{/isActive}}><a href="#{{baseUrl}}{{endPoint}}">{{name}}: {{count}}</a></li>
+                <li {{#isActive}}class="selected"{{/isActive}} ><a href="#{{baseUrl}}{{endPoint}}">{{name}}: {{count}}</a></li>
             {{/c}}
         </ul>
     </div>
