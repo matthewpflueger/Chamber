@@ -39,6 +39,12 @@ define(
                             content[index].isActive = true;
                         }
                     });
+
+                    if( contentType.singular === "Photo" ){
+                        $('#title-action-button').hide();
+                    } else {
+                        $('#title-action-button').show();
+                    }
                 }
 
                 var view = {
@@ -64,14 +70,6 @@ define(
                         domain: "www.echoed.com"
                     });
                 }
-
-                if( contentType.singular === "Photo" ){
-                    $('#title-action-button').hide();
-                } else {
-                    $('#title-action-button').show();
-                }
-
-
 
                 this.element.show();
             },
