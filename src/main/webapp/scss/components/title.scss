@@ -36,23 +36,37 @@
 
             #title-stats{
                 float: right;
-                .title-stats-label{
-                    width: 100px;
-                    padding-left: 5px;
-                    display: inline-block;
-                    text-align: left;
+
+                .title-stats-label {
+                    width:          100px;
+                    padding-left:   5px;
+                    display:        inline-block;
+                    text-align:     left;
+                    font-weight:    inherit;
+                    color:          inherit;
                 }
-                .title-stats-text{
-                    text-align: right;
-                    display: inline-block;
-                    width: 100px;
-                    font-weight: bold;
-                    padding-right: 5px;
+
+                .title-stats-text {
+                    text-align:     right;
+                    display:        inline-block;
+                    width:          100px;
+                    padding-right:  5px;
+                    font-weight:    inherit;
+                    color:          inherit;
                 }
-                li{
-                    border-bottom: 1px solid #CCC;
+
+                li {
+                    border-bottom:  1px solid #CCC;
+                    .active{
+                        font-weight:    bold;
+                        &:hover {
+                            color:      $colorEC;
+                        }
+                    }
                 }
+
             }
+
             #title-content{
                 float: right;
                 margin-right: 40px;
