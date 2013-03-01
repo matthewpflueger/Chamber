@@ -11,14 +11,13 @@ import scala.Right
 import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.echoed.chamber.services.feed.GetStoryResponse
-import com.echoed.chamber.services.feed.GetStory
+import com.echoed.chamber.services.feed.{GetContentResponse, GetContent}
 import com.echoed.chamber.domain.Vote
 import com.echoed.chamber.services.echoeduser.VoteStoryResponse
-import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.VoteStory
 import com.echoed.chamber.services.echoeduser.PublishFacebookAction
+import views.content.Content
 
 
 @Controller
@@ -36,12 +35,12 @@ class ApiController extends EchoedController {
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String,
             @Nullable eucc: EchoedUserClientCredentials) = {
 
-        val result = new DeferredResult[Option[StoryPublic]](null, ErrorResult.timeout)
+        val result = new DeferredResult[Option[Content]](null, ErrorResult.timeout)
 
         log.debug("Requesting Story {}", id )
 
-        mp(GetStory(id, origin)).onSuccess {
-            case GetStoryResponse(_, Right(story)) => result.setResult(story)
+        mp(GetContent(id, origin)).onSuccess {
+            case GetContentResponse(_, Right(story)) => result.setResult(story)
         }
 
         Option(eucc).map(c => mp(PublishFacebookAction(c, "browse", "story", v.storyGraphUrl + id)))

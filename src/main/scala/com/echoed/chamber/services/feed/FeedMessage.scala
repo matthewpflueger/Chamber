@@ -4,6 +4,7 @@ import com.echoed.chamber.services.{MessageResponse => MR, Event, EchoedExceptio
 import com.echoed.chamber.domain.views._
 import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.domain.{Topic, Community}
+import content.{ContentDescription, Content}
 import context.PublicContext
 
 sealed trait FeedMessage extends Message
@@ -26,16 +27,16 @@ case class GetStoryIds() extends FM
 case class GetStoryIdsResponse(message: GetStoryIds, value: Either[FE, Array[String]])
         extends FM with MR[Array[String], GetStoryIds, FE]
 
-case class GetStory(storyId: String, origin: String) extends FM
-case class GetStoryResponse(message: GetStory, value: Either[FE, Option[StoryPublic]])
-        extends FM with MR[Option[StoryPublic], GetStory, FE]
+case class GetContent(contentId: String, origin: String) extends FM
+case class GetContentResponse(message: GetContent, value: Either[FE, Option[Content]])
+        extends FM with MR[Option[Content], GetContent, FE]
 
 private[services] case class RequestTopicStoryFeed(topicId: String, page: Int) extends FM
 private[services] case class RequestTopicStoryFeedResponse(
             message: RequestTopicStoryFeed,
             value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestTopicStoryFeed, FE]
 
-case class RequestPublicContent(page: Int) extends FM
+case class RequestPublicContent(contentType: ContentDescription, page: Int) extends FM
 case class RequestPublicContentResponse(
             message: RequestPublicContent,
             value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestPublicContent, FE]

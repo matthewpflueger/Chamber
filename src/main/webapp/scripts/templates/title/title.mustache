@@ -7,15 +7,19 @@
         <span id="title-text">
             {{ title }}
         </span>
-        {{#contentType}}
-        <a id="title-action-button" href="#write">Add {{singular}}</a>
-        {{/contentType}}
+        {{#isActionable}}
+            {{#contentType}}
+                <a id="title-action-button" href="#write">Add {{singular}}</a>
+            {{/contentType}}
+        {{/isActionable}}
     </div>
     <div id="title-body" class="clearfix">
         <div id="title-photo">
         </div>
         <div id="title-actions" style="float:left">
+            {{#isFollowable}}
             <div id="title-follow" style="float: right;"></div>
+            {{/isFollowable}}
         </div>
         <div id="title-stats">
             <ul>
