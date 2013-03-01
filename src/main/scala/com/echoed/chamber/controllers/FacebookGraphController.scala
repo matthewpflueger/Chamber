@@ -5,7 +5,7 @@ import reflect.BeanProperty
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.context.request.async.DeferredResult
-import com.echoed.chamber.services.feed.{GetStory, GetStoryResponse}
+import com.echoed.chamber.services.feed.{GetContent, GetContentResponse}
 import com.echoed.chamber.services.partner.{GetEchoResponse, GetEcho}
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -24,8 +24,8 @@ class FacebookGraphController extends EchoedController {
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
 
         log.debug("Retrieving Story Graph Story Page for Echo: {}", storyId)
-        mp(GetStory(storyId, origin)).onSuccess {
-            case GetStoryResponse(msg, Right(storyFull)) =>
+        mp(GetContent(storyId, origin)).onSuccess {
+            case GetContentResponse(msg, Right(storyFull)) =>
                 log.debug("Successfully Retrived Story {} , Responding With Facebook Graph Story View", storyFull)
                 val modelAndView = new ModelAndView(v.facebookGraphStoryView)
                 modelAndView.addObject("storyFull", storyFull.get)

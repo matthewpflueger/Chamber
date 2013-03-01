@@ -12,7 +12,7 @@ define(
                         return this.get("contextType").toLowerCase() + "/" + this.id + "/";
                     }
                 } else {
-                    return false;
+                    return "explore/";
                 }
             },
             getContentType: function(){
