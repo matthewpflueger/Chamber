@@ -1,14 +1,15 @@
 .fade {
-    background-color: rgba(0,0,0,0.5);
-    top: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: 0px;
-    height: 100%;
-    position: fixed;
-    width: 100%;
-    min-width: 1200px;
-    overflow-y: scroll;
-    z-index: 9999;
+    background-color:   rgba(0,0,0,0.5);
+    top:                0px;
+    left:               0px;
+    bottom:             0px;
+    right:              0px;
+    height:             100%;
+    position:           fixed;
+    width:              100%;
+    min-width:          1200px;
+    overflow-y:         scroll;
+    z-index:            9999;
+    cursor:             pointer;
 }
 

@@ -16,7 +16,7 @@ define(
                 this.htmlEl =       $('html');
 
                 this.socket = new easyXDM.Socket({
-                    remote: this.properties.overlayUrl,
+                    remote: this.properties.overlayUrl + window.location.hash,
                     props: {
                         id: "echoed-overlay"
                     },
@@ -70,6 +70,10 @@ define(
                             }
                             this.EvAg.trigger("background/update", msgObj.data);
                             this.properties.redirect = msgObj.data;
+                            break;
+                        case "hashChange":
+                            window.location.hash = msgObj.data;
+                            break;
                     }
                 } catch(e){
 

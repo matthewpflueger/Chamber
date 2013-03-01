@@ -10,6 +10,7 @@ define(
         return Backbone.View.extend({
             initialize: function(options){
                 _.bindAll(this);
+                var self = this;
                 this.EvAg = options.EvAg;
                 this.modelPartner = options.modelPartner;
 
@@ -38,7 +39,10 @@ define(
                         }
                     }
                 });
-
+                window.onhashchange = function(){
+                    console.log(window.location.hash);
+                    self.sendMessage("hashChange", window.location.hash);
+                }
             },
             pageChange: function(){
                 var partner = this.modelPartner.toJSON();

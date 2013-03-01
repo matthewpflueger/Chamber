@@ -31,9 +31,19 @@ define(
 
                 var content =       this.modelContext.get("content");
                 var contentType =   this.modelContext.get("contentType");
+                var contextType =   this.modelContext.get("contextType");
+                var isActionable =  false;
+                var isFollowable =  false;
 
+                if( contextType === "partner" ) {
+                    isActionable = true;
+                }
 
-                if(contentType !== null){
+                if( contextType === "user" || contextType === "partner" ) {
+                    isFollowable = true;
+                }
+
+                if( contentType !== null ) {
                     $.each(content, function(index, c) {
                         if(c.name === contentType.plural) {
                             content[index].isActive = true;
@@ -43,9 +53,11 @@ define(
                 }
 
                 var view = {
-                    context:    this.modelContext.toJSON(),
-                    baseUrl:    this.modelContext.baseUrl(),
-                    c:          content
+                    context:        this.modelContext.toJSON(),
+                    baseUrl:        this.modelContext.baseUrl(),
+                    c:              content,
+                    isActionable:   isActionable,
+                    isFollowable:   isFollowable
                 };
 
                 this.element.html(templateTitle(view));
