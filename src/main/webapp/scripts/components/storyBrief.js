@@ -30,7 +30,7 @@ define(
                 var chapterText =   "";
                 if(this.modelStory.get("chapters").length){
                     chapterText =   this.modelStory.get("chapters")[0].text;
-                    if(image !== null){
+                    if(image !== null && image !== undefined){
                         var c =         chapterText.split(/[.!?]/)[0];
                         c = c +         chapterText.substr(c.length, 1); //Append Split Character
                         chapterText =   c;
@@ -63,7 +63,7 @@ define(
                     voteCount:          voteCount
                 };
 
-                if(image !== null){
+                if(image !== null && image !== undefined){
                     var i = utils.scaleByWidth(image, 260);
                     jsonModel.storyImage = {
                         url: i.attr("src"),
