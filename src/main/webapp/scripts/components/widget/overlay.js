@@ -36,7 +36,7 @@ define(
                             });
                         }
                         if(self.properties.isPreview){
-                            self.showOverlay();
+//                          elf.showOverlay();
                             self.EvAg.trigger("background/show");
                         } else {
                             self.parseHash();

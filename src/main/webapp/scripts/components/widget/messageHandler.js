@@ -40,7 +40,6 @@ define(
                     }
                 });
                 window.onhashchange = function(){
-                    console.log(window.location.hash);
                     self.sendMessage("hashChange", window.location.hash);
                 }
             },
