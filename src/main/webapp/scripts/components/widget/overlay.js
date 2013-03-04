@@ -36,7 +36,8 @@ define(
                             });
                         }
                         if(self.properties.isPreview){
-                            self.showOverlay();
+//                            console.log("Is Preview");
+//                            self.showOverlay();
                             self.EvAg.trigger("background/show");
                         } else {
                             self.parseHash();
