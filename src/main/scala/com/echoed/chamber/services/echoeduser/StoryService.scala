@@ -50,15 +50,15 @@ import org.apache.commons.codec.digest.DigestUtils
 import scala.Left
 import scala.Right
 import scala.Some
-import scala.collection.mutable.{Set => MSet}
+import scala.collection.mutable.{Map => MMap, Set => MSet}
 import state._
 import scala.concurrent.forkjoin.ThreadLocalRandom
-import org.openqa.selenium.{JavascriptExecutor, OutputType, TakesScreenshot, WebDriver}
+import org.openqa.selenium.{OutputType, TakesScreenshot, WebDriver}
 import org.openqa.selenium.firefox.{FirefoxBinary, FirefoxDriver}
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.mime.{HttpMultipartMode, MultipartEntity}
-import org.apache.http.entity.mime.content.{FileBody, StringBody, ByteArrayBody}
+import org.apache.http.entity.mime.content.{FileBody, StringBody}
 import scala.io.Source
 import scala.util.Try
 import java.util.concurrent.TimeUnit
@@ -76,7 +76,7 @@ class StoryService(
     import context.dispatcher
 
     private var storyState: StoryState = _
-    private var temporaryLinks = Map.empty[String, Link]
+    private var temporaryLinks = MMap.empty[String, Link]
 
     private def requestStory(partnerId: Option[String], topicId: Option[String] = None): Unit =
             mp.tell(RequestStory(PartnerClientCredentials(partnerId.getOrElse("Echoed")), topicId), self)
@@ -170,7 +170,7 @@ class StoryService(
                 new ChapterImage(chapter, img)
             }
 
-            val chapterLinks = links.map(Link(chapter, _))
+            val chapterLinks = processLinks(chapter, links)
 
             storyState = storyState.copy(
                     chapters = storyState.chapters ::: List(chapter),
@@ -216,7 +216,7 @@ class StoryService(
                 }
             }
 
-            val chapterLinks = links.map(Link(chapter, _))
+            val chapterLinks = processLinks(chapter, links)
 
             storyState = storyState.copy(
                     chapters = storyState.chapters.map(c => if (c.id == chapter.id) chapter else c),
@@ -283,33 +283,6 @@ class StoryService(
                 "cloudName" -> cloudinaryProperties.getProperty("name"),
                 "signature" -> signature)))
 
-//            val timestamp = System.currentTimeMillis
-//            val name = cloudinaryProperties.getProperty("name")
-//            val apiKey = cloudinaryProperties.getProperty("apiKey")
-//            val secret = cloudinaryProperties.getProperty("secret")
-//            val publicId = UUID()
-//            val tags = "%s,%s" format(eucc.id, storyId)
-//            val transformation = "a_exif"
-//
-//            val data = "callback=%s&public_id=%s&tags=%s&timestamp=%s&transformation=%s%s" format(
-//                    callback,
-//                    publicId,
-//                    tags,
-//                    timestamp,
-//                    transformation,
-//                    secret)
-//            val signature = DigestUtils.shaHex(data)
-//
-//            sender ! RequestImageUploadResponse(msg, Right(Map(
-//                    "uploadUrl" -> ("https://api.cloudinary.com/v1_1/%s/image/upload" format name),
-//                    "timestamp" -> timestamp.toString,
-//                    "callback" -> callback,
-//                    "api_key" -> apiKey,
-//                    "cloudName" -> name,
-//                    "public_id" -> publicId,
-//                    "tags" -> tags,
-//                    "transformation" -> transformation,
-//                    "signature" -> signature)))
 
         case msg @ ProcessImageResponse(_, Right(img)) =>
             if (storyState.imageId == img.id) {
@@ -340,14 +313,25 @@ class StoryService(
 
 
         case msg @ PostLink(eucc, _, url) =>
-            val u = if (!url.startsWith("http")) "http://" + url else url
-            sender ! PostLinkResponse(msg, Right(temporaryLinks.get(u).getOrElse {
-                val link = capture(Link(storyState.asStory, u))
-                temporaryLinks += u -> link
+            sender ! PostLinkResponse(msg, Right(temporaryLinks.get(Link.normalize(url)).getOrElse {
+                val link = capture(Link(storyState.asStory, url))
+                temporaryLinks += link.url -> link
                 link
             }))
     }
 
+    private def processLinks(chapter: Chapter, links: List[Link]) = {
+        //This is a ugly hack to use the link info that was just captured in PostLink in the case of somebody
+        //quickly entering a story.  TODO break out the link crawl and image capture into its own service...
+        links.map { lk =>
+            temporaryLinks
+                .get(Link.normalize(lk.url))
+                .map(Link(chapter, _))
+                .orElse(Some(Link(chapter, lk)))
+                .map(_.copy(description = lk.description))
+                .get
+        }
+    }
     private def processImage(imageString: String) = {
         if (imageString.startsWith("{")) {
             val m = ScalaObjectMapper(imageString, classOf[Map[String, Any]])
