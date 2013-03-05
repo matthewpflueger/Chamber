@@ -19,5 +19,7 @@ case class PhotoContent( image: Image, originalContent: Content )  extends Conte
 }
 
 object PhotoContent {
-    val contentDescription = new ContentDescription("Photo", "Photos", "photos")
+
+    val contentDescription = new ContentDescription("Photo", "Photos", "photos", 10)
+
 }

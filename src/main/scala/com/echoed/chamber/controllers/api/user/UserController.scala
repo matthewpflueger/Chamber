@@ -27,10 +27,11 @@ class UserController extends EchoedController {
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
-    @RequestMapping(value = Array("/{id}", "{id}/stories"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{id}/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUserContent(
-                    @PathVariable(value ="id") id: String,
+                    @PathVariable(value = "id") id: String,
+                    @PathVariable(value = "contentType") contentType: String,
                     @RequestParam(value = "page", required = false) page: String,
                     @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
@@ -38,12 +39,13 @@ class UserController extends EchoedController {
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), Story.storyContentDescription)).onSuccess {
+        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), Story.getContentDescriptionFromEndpoint(contentType))).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
         result
     }
+
 
     @RequestMapping(value = Array("/{id}/photos"), method = Array(RequestMethod.GET))
     @ResponseBody

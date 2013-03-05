@@ -14,7 +14,8 @@ trait Content extends FeedItem {
 }
 
 case class ContentDescription(
-    singular:      String,
-    plural:        String,
-    endPoint:      String
+    singular:       String,
+    plural:         String,
+    endPoint:       String,
+    ordering:       Int
 )

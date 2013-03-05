@@ -85,17 +85,38 @@ case class Story(
 
     def contentDescription = getContentDescription(contentType)
 
-    def getContentDescription(contentType: String) = {
-        contentType match {
-            case "Review" => Story.reviewContentDescription
-            case _ =>        Story.storyContentDescription
+    def getContentDescription(cType: String) = {
+        cType match {
+            case "Story" =>         Story.storyContentDescription
+            case "Review" =>        Story.reviewContentDescription
+            case "Question" =>      Story.qaContentDescription
+            case "News" =>          Story.newsContentDescription
+            case "Discussion" =>    Story.discussionContentDescription
+            case _ =>               Story.storyContentDescription
         }
     }
 
 }
 
 object Story {
-    val storyContentDescription =   new ContentDescription("Story", "Stories" ,"stories")
-    val reviewContentDescription =  new ContentDescription("Review", "Reviews" ,"reviews")
-    val defaultContentDescriptions = List(storyContentDescription, reviewContentDescription)
+    val newsContentDescription =        new ContentDescription("News", "News", "news", 5)
+    val qaContentDescription =          new ContentDescription("Question", "Q & A", "questions", 3)
+    val storyContentDescription =       new ContentDescription("Story", "Stories" , "stories", 2)
+    val reviewContentDescription =      new ContentDescription("Review", "Reviews" , "reviews", 4)
+    val discussionContentDescription =  new ContentDescription("Discussion", "General Discussion", "discussions", 1)
+    val defaultContentDescriptions =    List(discussionContentDescription, qaContentDescription, storyContentDescription, reviewContentDescription)
+
+    def getContentDescriptionFromEndpoint(endpoint: String) = {
+        endpoint match {
+            case "stories" =>       Story.storyContentDescription
+            case "reviews" =>       Story.reviewContentDescription
+            case "questions" =>     Story.qaContentDescription
+            case "news" =>          Story.newsContentDescription
+            case "discussions" =>   Story.discussionContentDescription
+            case _ =>               Story.storyContentDescription
+        }
+    }
+
+
+
 }
