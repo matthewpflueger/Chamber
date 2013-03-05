@@ -234,14 +234,17 @@ class StateService(
             votes.insert(vote)
             stories.update(storyState.asStory)
 
-        case ChapterCreated(_, c, ci) =>
+        case ChapterCreated(_, c, ci, li) =>
             chapters.insert(c)
             ci.map(chapterImages.insert(_))
+            li.map(links.insert(_))
 
-        case ChapterUpdated(_, c, ci) =>
+        case ChapterUpdated(_, c, ci, li) =>
             chapters.update(c)
             chapterImages.deleteWhere(ci => ci.chapterId === c.id)
+            links.deleteWhere(li => li.chapterId === c.id)
             ci.map(chapterImages.insert(_))
+            li.map(links.insert(_))
 
         case CommentCreated(storyState, c) =>
             comments.insert(c)

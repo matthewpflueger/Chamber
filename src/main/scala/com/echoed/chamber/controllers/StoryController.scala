@@ -15,8 +15,12 @@ import javax.annotation.Nullable
 import com.echoed.chamber.services.adminuser.AdminUserClientCredentials
 import org.springframework.web.servlet.ModelAndView
 import javax.servlet.http.HttpServletRequest
-import com.echoed.chamber.domain.{ModerationDescription, Comment, ChapterInfo, Chapter, Story, StoryInfo}
+import com.echoed.chamber.domain.{DomainObject, Image, Link, ModerationDescription, Comment, ChapterInfo, Chapter, Story, StoryInfo}
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.echoed.util.UUID
+import java.util.Date
+import org.squeryl.annotations.Transient
+import java.net.URLEncoder
 
 
 @Controller
@@ -148,7 +152,8 @@ class StoryController extends EchoedController {
                 storyId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.imageIds).getOrElse(List.empty[String]),
+                Option(chapterParams.links).getOrElse(List.empty[Link]),
                 Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case CreateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
@@ -179,7 +184,8 @@ class StoryController extends EchoedController {
                 chapterId,
                 chapterParams.title,
                 chapterParams.text,
-                Option(chapterParams.imageIds).map(_.toList).getOrElse(List.empty[String]),
+                Option(chapterParams.imageIds).getOrElse(List.empty[String]),
+                Option(chapterParams.links).getOrElse(List.empty[Link]),
                 Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
             case UpdateChapterResponse(_, Right(chapter)) =>
                 log.debug("Successfully updated chapter {} for {}", chapterId, eucc)
@@ -259,15 +265,34 @@ class StoryController extends EchoedController {
         result
     }
 
+    @RequestMapping(value = Array("/{storyId}/link"), method = Array(RequestMethod.POST))
+    @ResponseBody
+    def postLink(
+            @PathVariable("storyId") storyId: String,
+            @RequestParam(value = "url", required = true) url: String,
+            eucc: EchoedUserClientCredentials,
+            request: HttpServletRequest) = {
+
+        log.debug("Creating link to {} for story {}", url, storyId)
+
+        val result = new DeferredResult[Link](null, ErrorResult.timeout)
+
+        mp(PostLink(eucc, storyId, url)).onSuccess {
+            case PostLinkResponse(_, Right(link)) =>
+                log.debug("Successfully posted link {} to {} for story {}", link.id, link.url, link.storyId)
+                result.setResult(link)
+        }
+
+        result
+    }
 
     @RequestMapping(value = Array("/image/callback"), method = Array(RequestMethod.GET))
     def imageCallback = new ModelAndView(v.cloudinaryCallback)
 }
 
-class ChapterParams(
-            @BeanProperty var title: String,
-            @BeanProperty var text: String,
-            @BeanProperty var imageIds: Array[String],
-            @BeanProperty var publish: String) {
-    def this() = this(null, null, null, null)
-}
+case class ChapterParams(
+        title: String,
+        text: String,
+        imageIds: List[String],
+        links: List[Link],
+        publish: String)

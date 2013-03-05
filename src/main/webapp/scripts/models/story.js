@@ -157,6 +157,24 @@ define(
                     }
                 })();
             },
+            saveLink: function(link, title, callback){
+                var self = this;
+                var url = this.properties.urls.api + "/story/" + this.id + "/link";
+                utils.AjaxFactory({
+                    type: "POST",
+                    url: url,
+                    data: {
+                        url: link,
+                        title: title
+                    },
+                    success: function(response){
+                        var links = self.get("links");
+                        links.push(response);
+                        self.set("links", links);
+                        callback(self, response);
+                    }
+                })();
+            },
             updateChapter: function(chapter, chapterImages){
                 var chapters = this.get("chapters");
                 var newChapter = true;

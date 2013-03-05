@@ -28,25 +28,28 @@
                 this.EvAg.bind("input:edit",    this.edit);
                 this.locked =               false;
                 this.cloudName =            "";
+
+                this.currentLinks = [];
             },
             events: {
-                "click .field-close" :      "close",
-                "click #edit-cover":        "editStoryClick",
-                "click .edit-chapter" :     "editChapterClick",
-                'click #submit-cover':      "submitCover",
-                'click #chapter-publish':   "publishChapterClick",
-                'click #chapter-save':      'saveChapterClick',
-                'click #chapter-add':       'addChapterClick',
-                'click #story-finish':      'finishStoryClick',
-                'click #story-hide':        "hideStoryClick",
-                'click #chapter-cancel':    'cancelChapterClick',
-                'click .chapter-thumb-x':   'removeChapterThumb',
-                'click .fade':              "fadeClick",
-                'click .text':              "textClick",
-                "click .photos":            "photosClick",
-                "click .link":              "linkClick",
-                "click .subtit":            "subtitleClick"
-
+                "click .field-close" :         "close",
+                "click #edit-cover":           "editStoryClick",
+                "click .edit-chapter" :        "editChapterClick",
+                'click #submit-cover':         "submitCover",
+                'click #chapter-publish':      "publishChapterClick",
+                'click #chapter-save':         'saveChapterClick',
+                'click #chapter-add':          'addChapterClick',
+                'click #story-finish':         'finishStoryClick',
+                'click #story-hide':           "hideStoryClick",
+                'click #chapter-cancel':       'cancelChapterClick',
+                'click .chapter-thumb-x':      'removeChapterThumb',
+                'click .fade':                 "fadeClick",
+                'click .text':                 "textClick",
+                "click .photos":               "photosClick",
+                "click .link":                 "linkClick",
+                "click .subtit":               "subtitleClick",
+                "focusout #link-url":          'postLink',
+                "focusout #link-description":  'addLinkDescription'
             },
             fadeClick: function(ev){
                 if($(ev.target).hasClass("fade")){
@@ -346,7 +349,7 @@
                         self.locked = false;
                         self.render();
                     });
-                }
+               }
             },
             addChapterClick: function(){
                 this.loadChapterInputTemplate({});
@@ -356,6 +359,62 @@
             },
             saveChapterClick: function(){
                 this.updateChapter(false);
+            },
+            postLink: function() {
+                var self = this;
+
+                var link = $.trim($('#link-url').val());
+                if (link.length < 4) {
+                    //we have only one link per chapter right now...
+                    self.currentLinks = [];
+                    $('#link-description').val("");
+                    return;
+                }
+                if (self.currentLinks[0] && self.currentLinks[0].url && self.currentLinks[0].url === link) {
+                    return;
+                }
+
+
+                var success = function(response) {
+                    if (response.error) return;
+
+                    self.currentLinks[0] = response;
+                    var desc = $.trim($('#link-description').val());
+                    if (desc) self.currentLinks[0].description = desc;
+                    else $('#link-description').val(self.currentLinks[0].title)
+
+                    var imageUrl = utils.fit(self.currentLinks[0].image, 100, 100)[0].src;
+                    var placeholder = $('#link-thumbnail-placeholder').css("background-image", 'url("' + imageUrl + '")');
+                };
+
+                //kick off our processing of the link which is slow...
+                utils.AjaxFactory({
+                    url: self.properties.urls.site + "/story/" + self.modelStory.id + "/link",
+                    type: "POST",
+                    data: {
+                        url: link
+                    },
+                    success: function(response) {
+                        if (response.error === "timeout") {
+                            //try once more...
+                            utils.AjaxFactory({
+                                url: self.properties.urls.site + "/story/" + self.modelStory.id + "/link",
+                                type: "POST",
+                                data: {
+                                    url: link
+                                },
+                            success: success
+                            })();
+                        } else {
+                            success(response);
+                        }
+                    }
+                })();
+            },
+            addLinkDescription: function() {
+                var self = this;
+                var link = self.currentLinks[0] ? self.currentLinks[0] : {};
+                link.description = $.trim($('#link-description').val());
             },
             finishStoryClick: function(){
                 var self = this;
@@ -377,14 +436,15 @@
                 var text = $.trim($('#chapter-text').val());
                 var images = self.currentImages ? self.currentImages : [];
                 images = _.map(images, function(img) { return JSON.stringify(img); });
-                if(text === "" && images.length <= 0){
-                    alert("You must have either a description or an image");
+                if (text === "" && images.length <= 0 && link.length <= 0) {
+                    alert("You must have either a description, an image, or a link");
                 } else if(self.locked === false){
                     self.locked = true;
                     var options = {
                         title: title,
                         text: text,
                         imageIds: images,
+                        links: self.currentLinks,
                         publish: publishOption
                     };
                     if(this.editChapterId) options.chapterId = this.editChapterId;

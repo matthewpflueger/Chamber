@@ -127,7 +127,7 @@ object Echo {
                         category,
                         brand,
                         Option(description).map(_.take(1023)).orNull),
-            image = new Image(imageUrl))
+            image = Image(imageUrl))
     }
 }
 

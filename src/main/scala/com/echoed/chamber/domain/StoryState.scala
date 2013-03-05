@@ -22,6 +22,7 @@ case class StoryState(
         chapters: List[Chapter],
         chapterImages: List[ChapterImage],
         comments: List[Comment],
+        links: List[Link],
         partner: Partner,
         partnerSettings: PartnerSettings,
         echo: Option[Echo],
@@ -54,6 +55,7 @@ case class StoryState(
         List.empty[Chapter],
         List.empty[ChapterImage],
         List.empty[Comment],
+        List.empty[Link],
         p,
         ps,
         e,
@@ -109,7 +111,7 @@ case class StoryState(
             new StoryCommunities(),
             asStoryFull.orNull)
 
-    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, votes, moderationDescription, topic.orNull))
+    def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, links, votes, moderationDescription, topic.orNull))
 
     def asStoryPublic = new StoryPublic(asStoryFull.get)
 

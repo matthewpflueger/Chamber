@@ -250,7 +250,8 @@ case class CreateChapter(
         storyId: String,
         title: String,
         text: String,
-        imageIds: List[String],
+        imageIds: List[String] = List.empty[String],
+        links: List[Link] = List.empty[Link],
         publish: Option[Boolean] = None) extends EUM with EUI with SI
 
 case class CreateChapterResponse(message: CreateChapter, value: Either[EUE, ChapterInfo])
@@ -271,6 +272,7 @@ case class UpdateChapter(
         title: String,
         text: String,
         imageIds: List[String] = List.empty[String],
+        links: List[Link] = List.empty[Link],
         publish: Option[Boolean] = None) extends EUM with EUI with SI
 
 case class UpdateChapterResponse(message: UpdateChapter, value: Either[EUE, ChapterInfo])
@@ -435,6 +437,11 @@ private[echoeduser] case class ProcessImageResponse(
 
 case class AlreadyRegistered(email: String, m: String = "Echoed user already registered") extends EUE(m)
 
+case class PostLink(
+        credentials: EUCC,
+        storyId: String,
+        url: String) extends EUM with EUI with SI
+case class PostLinkResponse(message: PostLink, value: Either[EUE, Link])
 
 case class InvalidCredentials(m: String = "Invalid email or password") extends EUE(m)
 

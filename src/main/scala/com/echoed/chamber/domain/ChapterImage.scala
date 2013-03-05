@@ -31,7 +31,7 @@ case class ChapterImage(
         echoId = "",
         chapterId = "",
         imageId = "",
-        image = new Image())
+        image = Image())
 
     def this(
             chapter: Chapter,
@@ -47,7 +47,7 @@ case class ChapterImage(
         echoId = chapter.echoId,
         chapterId = chapter.id,
         imageId = imageId,
-        image = new Image().copy(id = imageId))
+        image = Image().copy(id = imageId))
 
     def this(
             chapter: Chapter,

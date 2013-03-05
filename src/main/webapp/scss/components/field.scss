@@ -88,8 +88,6 @@
     z-index: 10;
     @include sprite(-31px, -157px, 36px, 37px);
     cursor: pointer;
-
-
 }
 
 .field-text-input{
@@ -108,6 +106,21 @@
     }
 }
 
+.field-text-input-skinny{
+  width: 460px;
+  resize: none;
+  padding: 8px 5px;
+  border: 1px solid #FFF;
+  -webkit-appearance:none;
+  //border-radius: 5px;
+  background-color: #FFF;
+  @include dropShadowDown;
+  @include fontText(14px);
+  outline: none;
+  &:focus, &:hover{
+    //border: 1px solid #CCC;
+  }
+}
 .field-submit{
     @include buttonRed();
 }
@@ -192,6 +205,22 @@
             right: 5px;
         }
     }
+}
+
+#link-thumbnail-placeholder{
+  float:right;
+  width: 100px;
+  height: 100px;
+  background-image: image-url('bk_img_upload_ph.png');
+  background-size: 100%;
+
+  img{
+    height: 75px;
+    background-color: #777;
+    &.in{
+      background-color: #000;
+    }
+  }
 }
 
 #thumbnail-placeholder{

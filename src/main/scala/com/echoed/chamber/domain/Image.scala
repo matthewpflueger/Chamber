@@ -30,79 +30,6 @@ case class Image(
         processedStatus: String,
         retries: Int) extends DomainObject {
 
-    def this() = this(
-        "",
-        new Date,
-        new Date,
-        "",
-        "",
-        0,
-        0,
-        "",
-        0,
-        0,
-        "",
-        0,
-        0,
-        "",
-        0,
-        0,
-        "",
-        0,
-        0,
-        new Date,
-        "",
-        0)
-
-    def this(url: String) = this(
-        UUID(),
-        new Date,
-        new Date,
-        url,
-        null,
-        0,
-        0,
-        null,
-        0,
-        0,
-        null,
-        0,
-        0,
-        null,
-        0,
-        0,
-        null,
-        0,
-        0,
-        0L,
-        null,
-        0)
-
-    def this(id: String, url: String, width: Int, height: Int, cloudName: String) = this(
-        id,
-        new Date,
-        new Date,
-        url,
-        url,
-        width,
-        height,
-        url,
-        width,
-        height,
-        url,
-        width,
-        height,
-        url,
-        width,
-        height,
-        url,
-        width,
-        height,
-        new Date,
-        cloudName,
-        0)
-
-
     private def findFileName(url: String) =
         Option(url).map { u =>
             var i = u.lastIndexOf('/')
@@ -150,5 +77,77 @@ case class Image(
 
 object Image {
     val imageFormats = List("jpeg", "jpg", "png", "gif")
+
+    def apply() = new Image(
+        "",
+        new Date,
+        new Date,
+        "",
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        "",
+        0,
+        0,
+        new Date,
+        "",
+        0)
+
+    def apply(url: String) = new Image(
+        UUID(),
+        new Date,
+        new Date,
+        url,
+        null,
+        0,
+        0,
+        null,
+        0,
+        0,
+        null,
+        0,
+        0,
+        null,
+        0,
+        0,
+        null,
+        0,
+        0,
+        0L,
+        null,
+        0)
+
+    def apply(id: String, url: String, width: Int, height: Int, cloudName: String) = new Image(
+        id,
+        new Date,
+        new Date,
+        url,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        url,
+        width,
+        height,
+        new Date,
+        cloudName,
+        0)
 }
 

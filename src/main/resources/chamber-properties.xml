@@ -208,6 +208,7 @@
         <prop key="cloudinary.apiKey">921488723881834</prop>
         <prop key="cloudinary.secret">3t7CPs_VOcKQa7kGIloKpBI8Tk4</prop>
         <prop key="cloudinary.callback">${http.urls.site}/story/image/callback</prop>
+        <prop key="cloudinary.endpoint">https://api.cloudinary.com/v1_1/${cloudinary.name}/image/upload</prop>
 
         <prop key="bookmarklet.name">Echo It</prop>
     </util:properties>
@@ -356,6 +357,7 @@
         <prop key="apiKey">${cloudinary.apiKey}</prop>
         <prop key="secret">${cloudinary.secret}</prop>
         <prop key="callback">${cloudinary.callback}</prop>
+        <prop key="endpoint">${cloudinary.endpoint}</prop>
     </util:properties>
 </beans>
 

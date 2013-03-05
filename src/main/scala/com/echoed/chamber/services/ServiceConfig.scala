@@ -111,7 +111,8 @@ class ServiceConfig {
             ep = eventProcessor,
             initMessage = msg,
             echoedUser = eu,
-            cloudinaryProperties = cloudinaryProperties)))
+            cloudinaryProperties = cloudinaryProperties,
+            storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"))))
 
     @Bean
     def echoedUserService = (ac: ActorContext, msg: Message) => ac.actorOf(Props(new EchoedUserService(

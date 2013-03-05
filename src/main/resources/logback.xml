@@ -85,6 +85,7 @@
     <!-- make sure we see our debug statements -->
     <logger name="com.echoed" level="debug" />
     <logger name="org.jclouds" level="debug" />
+    <logger name="com.ning" level="debug" />
 
     <root level="warn">
         <appender-ref ref="async" />

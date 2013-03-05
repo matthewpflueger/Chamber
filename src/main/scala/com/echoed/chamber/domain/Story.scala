@@ -39,7 +39,7 @@ case class Story(
             partnerHandle = "",
             partnerSettingsId = "",
             imageId = "",
-            image = new Image(),
+            image = Image(),
             title = "",
             echoId = "",
             productId = "",
@@ -49,7 +49,7 @@ case class Story(
             upVotes = 0,
             downVotes = 0,
             community = "",
-            topicId = null,
+            topicId = "",
             contentType = "Story",
             contentPath = Some(""))
 
@@ -85,9 +85,8 @@ case class Story(
 
     def contentDescription = getContentDescription(contentType)
 
-    def getContentDescription(cType: String) = {
-        cType match {
-            case "Story" =>  Story.storyContentDescription
+    def getContentDescription(contentType: String) = {
+        contentType match {
             case "Review" => Story.reviewContentDescription
             case _ =>        Story.storyContentDescription
         }
