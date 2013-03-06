@@ -17,7 +17,7 @@ import com.echoed.chamber.services.state.{QueryMessage, QueryService, StateMessa
 import com.echoed.chamber.services.topic.TopicMessage
 import com.echoed.chamber.services.twitter.{TwitterMessage, TwitterAccess}
 import com.echoed.util.mustache.MustacheEngine
-import com.echoed.util.{ApplicationContextRef, Encrypter}
+import com.echoed.util.{CloudinaryUtil, ApplicationContextRef, Encrypter}
 import java.util.{List => JList, Properties}
 import javax.annotation.Resource
 import javax.sql.DataSource
@@ -26,6 +26,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import scala.collection.mutable.LinkedHashMap
 import topic.TopicService
 import akka.routing.{SmallestMailboxRouter, DefaultResizer}
+import com.echoed.chamber.services.image.{ImageMessage, ImageService}
 
 
 @Configuration
@@ -111,7 +112,7 @@ class ServiceConfig {
             ep = eventProcessor,
             initMessage = msg,
             echoedUser = eu,
-            cloudinaryProperties = cloudinaryProperties,
+            cloudinaryUtil = cloudinaryUtil,
             storyGraphUrl = urlsProperties.getProperty("storyGraphUrl"))))
 
     @Bean
@@ -181,6 +182,16 @@ class ServiceConfig {
             "QueryService")
 
     @Bean
+    def cloudinaryUtil = CloudinaryUtil(cloudinaryProperties)
+
+    @Bean
+    def imageService = (ac: ActorContext) => ac.actorOf(Props(new ImageService(cloudinaryUtil))
+            .withRouter(SmallestMailboxRouter(
+                resizer = Some(DefaultResizer(lowerBound = 2, upperBound = 5))))
+            .withDispatcher("chamber.blocking-dispatcher"),
+            "ImageService")
+
+    @Bean
     def stateService = (ac: ActorContext) => ac.actorOf(Props(new StateService(
             eventProcessor,
             squerylDataSource)), "StateService")
@@ -203,7 +214,8 @@ class ServiceConfig {
             classOf[EchoedUserMessage] -> echoedUserServiceManager,
             classOf[PartnerUserMessage] -> partnerUserServiceManager,
             classOf[AdminUserMessage] -> adminUserServiceManager,
-            classOf[PartnerMessage] -> partnerServiceManager)
+            classOf[PartnerMessage] -> partnerServiceManager,
+            classOf[ImageMessage] -> imageService)
 
     def messageRouter = actorSystem.actorOf(Props.default.withRouter(new MessageRouter(routeMap)), "Services")
 
