@@ -374,6 +374,8 @@
                     return;
                 }
 
+                self.currentLinks[0] = { url: link };
+
 
                 var success = function(response) {
                     if (response.error) return;
@@ -434,10 +436,13 @@
                 var self = this;
                 var title = $.trim($('#chapter-title').val());
                 var text = $.trim($('#chapter-text').val());
+                var links = self.currentLinks;
                 var images = self.currentImages ? self.currentImages : [];
                 images = _.map(images, function(img) { return JSON.stringify(img); });
-                if (text === "" && images.length <= 0 && link.length <= 0) {
+                if (text === "" && images.length <= 0 && links.length <= 0) {
                     alert("You must have either a description, an image, or a link");
+                } else if (links.length > 0 && (links[0].url === "" || links[0].description === "")) {
+                    alert("You must have both a link url and description");
                 } else if(self.locked === false){
                     self.locked = true;
                     var options = {

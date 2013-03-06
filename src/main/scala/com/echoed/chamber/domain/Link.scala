@@ -28,35 +28,37 @@ case class Link(
 
 object Link {
 
+    def normalize(url: String) = if (!url.startsWith("http")) "http://" + url else url
+
     def apply() = new Link("", 0L, 0L, "", "", "", "", "", "", "", Some(""), Some(""), Some(""), Image())
 
-    def apply(story: Story, url: String) =  new Link(
+    def apply(story: Story, url: String) = new Link(
+            UUID(),
+            new Date,
+            new Date,
+            story.echoedUserId,
+            story.partnerId,
+            story.partnerHandle,
+            story.partnerSettingsId,
+            story.id,
+            null,
+            normalize(url),
+            None,
+            None,
+            None,
+            null)
+
+    def apply(chapter: Chapter, link: Link) = new Link(
         UUID(),
         new Date,
         new Date,
-        story.echoedUserId,
-        story.partnerId,
-        story.partnerHandle,
-        story.partnerSettingsId,
-        story.id,
-        null,
-        url,
-        None,
-        None,
-        None,
-        null)
-
-    def apply(chapter: Chapter, link: Link) = new Link(
-        link.id,
-        link.updatedOn,
-        link.createdOn,
         chapter.echoedUserId,
         chapter.partnerId,
         chapter.partnerHandle,
         chapter.partnerSettingsId,
         chapter.storyId,
         chapter.id,
-        link.url,
+        normalize(link.url),
         link.description,
         link.pageTitle,
         link.imageId,
