@@ -287,6 +287,8 @@ class StateService(
         case msg @ TopicUpdated(topic) => topics.update(topic)
 
         case msg @ PartnerSettingsUpdated(ps) => partnerSettings.update(ps)
+
+        case msg @ LinkUpdated(_, link) => links.update(link)
     }
 
 }

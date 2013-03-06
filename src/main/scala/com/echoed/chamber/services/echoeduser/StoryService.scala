@@ -9,7 +9,7 @@ import com.echoed.chamber.services.echoeduser.{EchoedUserClientCredentials => EU
 import com.echoed.chamber.services.partner.{NotifyPartnerFollowers, PartnerClientCredentials, RequestStory, RequestStoryResponse, RequestStoryResponseEnvelope}
 import com.echoed.chamber.services.partneruser.{PartnerUserClientCredentials => PUCC}
 import com.echoed.util.DateUtils._
-import com.echoed.util.{ScalaObjectMapper, UUID}
+import com.echoed.util.{CloudinaryUtil, ScalaObjectMapper, UUID}
 import echoeduser.ChapterCreated
 import echoeduser.ChapterUpdated
 import echoeduser.CommentCreated
@@ -63,6 +63,7 @@ import scala.io.Source
 import scala.util.Try
 import java.util.concurrent.TimeUnit
 import java.io.File
+import com.echoed.chamber.services.image.{CaptureResponse, Capture}
 
 
 class StoryService(
@@ -70,7 +71,7 @@ class StoryService(
         ep: EventProcessorActorSystem,
         initMessage: Message,
         echoedUser: EchoedUser,
-        cloudinaryProperties: Properties,
+        cloudinaryUtil: CloudinaryUtil,
         storyGraphUrl: String) extends OnlineOfflineService {
 
     import context.dispatcher
@@ -275,12 +276,12 @@ class StoryService(
                 "tags" -> "%s,%s".format(eucc.id, storyId),
                 "transformation" -> "a_exif")
 
-            val signature = sign(params)
+            val signature = cloudinaryUtil.sign(params)
 
             sender ! RequestImageUploadResponse(msg, Right(params ++ Map(
-                "uploadUrl" -> cloudinaryProperties.getProperty("endpoint"),
-                "api_key" -> cloudinaryProperties.getProperty("apiKey"),
-                "cloudName" -> cloudinaryProperties.getProperty("name"),
+                "uploadUrl" -> cloudinaryUtil.endpoint,
+                "api_key" -> cloudinaryUtil.apiKey,
+                "cloudName" -> cloudinaryUtil.name,
                 "signature" -> signature)))
 
 
@@ -314,15 +315,29 @@ class StoryService(
 
         case msg @ PostLink(eucc, _, url) =>
             sender ! PostLinkResponse(msg, Right(temporaryLinks.get(Link.normalize(url)).getOrElse {
-                val link = capture(Link(storyState.asStory, url))
+                val link = Link(storyState.asStory, url)
+                mp.tell(Capture(link), self)
                 temporaryLinks += link.url -> link
                 link
             }))
+
+        case msg @ CaptureResponse(_, Right(link)) =>
+            temporaryLinks += link.url -> link
+            storyState.links
+                .filter(_.url == link.url)
+                .map(l => l.copy(
+                    pageTitle = link.pageTitle.orElse(l.pageTitle),
+                    imageId = link.imageId.orElse(l.imageId),
+                    image = Option(link.image).getOrElse(l.image)))
+                .foreach { ul =>
+                    storyState = storyState.copy(links = storyState.links.map(l => if (l.id == ul.id) ul else l))
+                    ep(LinkUpdated(storyState, ul))
+                }
     }
 
     private def processLinks(chapter: Chapter, links: List[Link]) = {
         //This is a ugly hack to use the link info that was just captured in PostLink in the case of somebody
-        //quickly entering a story.  TODO break out the link crawl and image capture into its own service...
+        //quickly entering a story...
         links.map { lk =>
             temporaryLinks
                 .get(Link.normalize(lk.url))
@@ -332,6 +347,7 @@ class StoryService(
                 .get
         }
     }
+
     private def processImage(imageString: String) = {
         if (imageString.startsWith("{")) {
             val m = ScalaObjectMapper(imageString, classOf[Map[String, Any]])
@@ -397,111 +413,6 @@ class StoryService(
 
     private def notifyStoryUpdate(eucc: EchoedUserClientCredentials) {
         mp.tell(echoeduser.NotifyStoryUpdate(eucc, storyState.asStoryPublic), self)
-    }
-
-
-    private def sign(params: Map[String, String]) =
-        DigestUtils.shaHex(
-            params
-                .toList
-                .sorted
-                .map { case (k, v) => "%s=%s" format(k, v) }
-                .mkString("&") + cloudinaryProperties.getProperty("secret"))
-
-
-    private def capture(link: Link): Link = {
-        //so we should be using url2png.com for screen capture and general website checking service
-        //WebDriver cannot and will probably never be able to get status codes so unless we want to fetch
-        //the page twice we will have to live with bad pages (this is something url2png.com solves for us)
-        //plus the below is a ton of blocking operations which need to be better managed this:
-        //See "Blocking Needs Careful Management" section of http://doc.akka.io/docs/akka/snapshot/general/actor-systems.html
-
-        var xvfb: Process = null
-        var driver: WebDriver = null
-        var pageTitle: String = null
-        var screenShot: File = null
-        var croppedScreenShot: File = null
-//        var bytes: Array[Byte] = null
-
-        val xfvbExec = "/usr/bin/Xvfb"
-        val timeout = 20
-
-        try {
-            val display = ThreadLocalRandom.current().nextInt(1, Integer.MAX_VALUE - 1)
-            log.debug("Starting up {} :{}", xfvbExec, display)
-            xvfb = Runtime.getRuntime().exec("%s :%s" format(xfvbExec, display))
-
-            log.debug("Starting Firefox on display {}", display)
-            val firefox = new FirefoxBinary()
-            firefox.setEnvironmentProperty("DISPLAY", ":" + display)
-            driver = new FirefoxDriver(firefox, null)
-            driver.manage().timeouts().pageLoadTimeout(timeout, TimeUnit.SECONDS)
-
-            log.debug("Fetching {}", link.url)
-            driver.get(link.url)
-            pageTitle = driver.getTitle
-            if (pageTitle == "Problem loading page") {
-                log.warning("Problem loading {}", link.url)
-                return link.copy(pageTitle = Some(pageTitle))
-            }
-//            driver.asInstanceOf[JavascriptExecutor].executeScript()
-
-            log.debug("Taking screenshot of {}", link.url)
-            screenShot = driver.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
-//            bytes = driver.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.BYTES)
-            croppedScreenShot = File.createTempFile("cropped", ".png")
-            croppedScreenShot.deleteOnExit()
-
-            val cmd = "convert %s -crop 1920x1080+0+0 %s" format(
-                screenShot.getAbsolutePath,
-                croppedScreenShot.getAbsolutePath)
-            log.debug("Cropping screenshot of {} using command {}", link.url, cmd)
-
-            import scala.sys.process._
-            val stderr = new StringBuilder()
-            val exitCode = cmd.!(ProcessLogger(
-                    line => stdout.append(line).append("\n"),
-                    line => stderr.append(line).append("\n")))
-            if (exitCode > 0) {
-                log.warning("Could not crop screenshot of {}, exit code of command was {}, error output {}", link.url, exitCode, stderr)
-                return link.copy(pageTitle = Some(pageTitle))
-            }
-
-
-            log.debug("Uploading to Cloudinary cropped screenshot of {}", link.url)
-            val client = new DefaultHttpClient()
-            val post = new HttpPost(cloudinaryProperties.getProperty("endpoint"))
-            val multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
-            val params = Map(
-                "timestamp" -> System.currentTimeMillis().toString,
-                "public_id" -> UUID(),
-                "tags" -> "%s,%s".format(link.echoedUserId, link.storyId))
-            val signature = sign(params)
-            (params ++ Map(
-                "api_key" -> cloudinaryProperties.getProperty("apiKey"),
-                "signature" -> signature)).foreach { case (key, value) => multipart.addPart(key, new StringBody(value)) }
-//        multipart.addPart("file", new ByteArrayBody(bytes, "image/png", link.url))
-            multipart.addPart("file", new FileBody(croppedScreenShot, "image/png", link.url))
-            post.setEntity(multipart)
-            val resp = client.execute(post)
-            log.debug("Upload to Cloudinary of cropped screenshot of {} is {}", link.url, resp.getStatusLine.getStatusCode)
-            val json = Source.fromInputStream(resp.getEntity.getContent, "US-ASCII").mkString
-            log.debug("Response to upload to Cloudinary of screenshot of {} is {}", link.url, json)
-            val map = ScalaObjectMapper(json, classOf[Map[String, Any]])
-            val image = Image(
-                    map("public_id").asInstanceOf[String],
-                    map("url").asInstanceOf[String],
-                    map("width").asInstanceOf[Int],
-                    map("height").asInstanceOf[Int],
-                    cloudinaryProperties.getProperty("name"))
-            ep(StoryImageCreated(image))
-            link.copy(pageTitle = Some(pageTitle), imageId = Some(image.id), image = image)
-        } finally {
-            Try(driver.quit())
-            Try(xvfb.destroy())
-            Try(screenShot.delete())
-            Try(croppedScreenShot.delete())
-        }
     }
 
 }
