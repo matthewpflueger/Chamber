@@ -147,17 +147,27 @@ class StoryController extends EchoedController {
 
         val result = new DeferredResult[ChapterInfo](null, ErrorResult.timeout)
 
-        mp(CreateChapter(
+        //fake title in case the story has not been created yet...
+        val storyTitle = "Story by %s" format eucc.screenName.orElse(eucc.name).getOrElse(eucc.id)
+        mp(CreateStory(
                 eucc,
                 storyId,
-                chapterParams.title,
-                chapterParams.text,
-                Option(chapterParams.imageIds).getOrElse(List.empty[String]),
-                Option(chapterParams.links).getOrElse(List.empty[Link]),
-                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
-            case CreateChapterResponse(_, Right(chapter)) =>
-                log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
-                result.setResult(chapter)
+                storyTitle)).onSuccess {
+            case CreateStoryResponse(_, Right(story)) =>
+                log.debug("Successfully made story {} for {}", story.title, eucc)
+
+                mp(CreateChapter(
+                        eucc,
+                        storyId,
+                        chapterParams.title,
+                        chapterParams.text,
+                        Option(chapterParams.imageIds).getOrElse(List.empty[String]),
+                        Option(chapterParams.links).getOrElse(List.empty[Link]),
+                        Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
+                    case CreateChapterResponse(_, Right(chapter)) =>
+                        log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
+                        result.setResult(chapter)
+                }
         }
 
         result
