@@ -19,11 +19,10 @@ case class StoryPublic (
         comments: List[CommentPublic],
         votes: Map[String, Vote],
         moderation: ModerationDescription,
-        topic: TopicPublic)  extends Content {
+        topic: TopicPublic) extends Content {
 
-//    val contentType =  "Story"
     val contentType =  story.contentType
-    val title =        story.title
+    val title =        story.title.orNull
 
     def createdOn =    story.createdOn
     def updatedOn =    story.updatedOn
@@ -69,7 +68,7 @@ case class StoryPublic (
         Map(
             "subject" -> echoedUser.name,
             "action" -> "updated story",
-            "object" -> title,
+            "object" -> Option(title).getOrElse("with no title"),
             "storyId" -> id,
             "partnerId" -> partner.id,
             "partnerName" -> partner.name))

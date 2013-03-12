@@ -55,7 +55,7 @@ class StoryController extends EchoedController {
     @ResponseBody
     def createStory(
             @RequestParam(value = "storyId", required = true) storyId: String,
-            @RequestParam(value = "title", required = true) title: String,
+            @RequestParam(value = "title", required = false) title: String,
             @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
@@ -72,7 +72,7 @@ class StoryController extends EchoedController {
         mp(CreateStory(
                 eucc,
                 storyId,
-                title,
+                Option(title),
                 Option(imageId),
                 Option(partnerId),
                 Option(productInfo),
@@ -92,7 +92,7 @@ class StoryController extends EchoedController {
     @ResponseBody
     def updateStory(
             @PathVariable(value = "storyId") storyId: String,
-            @RequestParam(value = "title", required = true) title: String,
+            @RequestParam(value = "title", required = false) title: String,
             @RequestParam(value = "imageId", required = false) imageId: String,
             @RequestParam(value = "productInfo", required = false) productInfo: String,
             @RequestParam(value = "community", required = false) community: String,
@@ -105,7 +105,7 @@ class StoryController extends EchoedController {
         mp(UpdateStory(
                 eucc,
                 storyId,
-                title,
+                Option(title),
                 Option(imageId),
                 community,
                 Option(productInfo))).onSuccess {
@@ -147,17 +147,24 @@ class StoryController extends EchoedController {
 
         val result = new DeferredResult[ChapterInfo](null, ErrorResult.timeout)
 
-        mp(CreateChapter(
+        mp(CreateStory(
                 eucc,
-                storyId,
-                chapterParams.title,
-                chapterParams.text,
-                Option(chapterParams.imageIds).getOrElse(List.empty[String]),
-                Option(chapterParams.links).getOrElse(List.empty[Link]),
-                Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
-            case CreateChapterResponse(_, Right(chapter)) =>
-                log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
-                result.setResult(chapter)
+                storyId)).onSuccess {
+            case CreateStoryResponse(_, Right(story)) =>
+                log.debug("Successfully made story {} for {}", story.title, eucc)
+
+                mp(CreateChapter(
+                        eucc,
+                        storyId,
+                        chapterParams.title,
+                        chapterParams.text,
+                        Option(chapterParams.imageIds).getOrElse(List.empty[String]),
+                        Option(chapterParams.links).getOrElse(List.empty[Link]),
+                        Option(chapterParams.publish).map(_.toBoolean))).onSuccess {
+                    case CreateChapterResponse(_, Right(chapter)) =>
+                        log.debug("Successfully made chapter {} for {}", chapterParams.title, eucc)
+                        result.setResult(chapter)
+                }
         }
 
         result

@@ -154,7 +154,7 @@ class StoryService(
                     Map(
                         "subject" -> byEchoedUser.name,
                         "action" -> "upvoted",
-                        "object" -> storyState.title,
+                        "object" -> storyState.extractTitle.getOrElse("this"),
                         "storyId" -> storyState.id))), self)
             }
             sender ! NewVoteResponse(msg, Right(storyState.votes))
@@ -249,7 +249,7 @@ class StoryService(
                     Map(
                         "subject" -> byEchoedUser.name,
                         "action" -> "commented on",
-                        "object" -> storyState.title,
+                        "object" -> storyState.extractTitle.getOrElse("this"),
                         "storyId" -> storyState.id)))
             notifyStoryUpdate(eucc)
 
@@ -392,7 +392,7 @@ class StoryService(
             Map(
                 "subject" -> echoedUser.name,
                 "action" -> "updated story",
-                "object" -> storyState.title,
+                "object" -> storyState.extractTitle.getOrElse("with no title"),
                 "storyId" -> storyState.id,
                 "partnerId" -> storyState.partner.id,
                 "partnerName" -> storyState.partner.name))

@@ -12,7 +12,7 @@ case class StoryState(
         id: String,
         updatedOn: Long,
         createdOn: Long,
-        title: String,
+        title: Option[String],
         productInfo: String,
         views: Int,
         community: String,
@@ -45,7 +45,7 @@ case class StoryState(
         UUID(),
         0L,
         0L,
-        null,
+        None,
         null,
         0,
         community.getOrElse(p.category),
@@ -66,7 +66,7 @@ case class StoryState(
         contentPath)
 
     def isCreated = createdOn > 0
-    def create(title: String, productInfo: String, community: String, image: Option[Image], contentType: String) = {
+    def create(title: Option[String], productInfo: String, community: String, image: Option[Image], contentType: String) = {
         val storyState = copy(
             updatedOn = new Date,
             createdOn = new Date,
@@ -90,7 +90,7 @@ case class StoryState(
             partnerSettings.id,
             imageId,
             image.orNull,
-            title,
+            extractTitle,
             echo.map(_.id).orNull,
             echo.map(_.productId).orNull,
             productInfo,
@@ -114,6 +114,10 @@ case class StoryState(
     def asStoryFull = Option(StoryFull(id, asStory, echoedUser, partner, chapters, chapterImages, comments, links, votes, moderationDescription, topic.orNull))
 
     def asStoryPublic = new StoryPublic(asStoryFull.get)
+
+    def extractTitle = title.orElse {
+        chapters.filter(_.isPublished).headOption.map(_.title).orElse(this.chapters.headOption.map(_.title))
+    }
 
     private def selfModeratedPredicate: Moderation => Boolean = _.moderatedRef == "EchoedUser"
     private def echoedModeratedPredicate: Moderation => Boolean = _.moderatedRef == "AdminUser"

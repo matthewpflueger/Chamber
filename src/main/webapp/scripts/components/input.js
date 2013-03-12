@@ -120,7 +120,8 @@
                 self.body = $('#story-summary-body');
 
                 if(this.modelStory.get("isNew")){
-                    self.loadStoryInputTemplate();
+//                    self.loadStoryInputTemplate();
+                    self.loadChapterInputTemplate({});
                 } else if(this.modelStory.get("chapters").length > 0){
                     self.loadStoryCoverTemplate();
                     self.loadChapterTemplates();
