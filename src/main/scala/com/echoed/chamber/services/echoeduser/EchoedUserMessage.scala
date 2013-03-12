@@ -222,7 +222,7 @@ case class NewVoteResponse(message: NewVote, value: Either[EUE, Map[String, Vote
 case class CreateStory(
         credentials: EUCC,
         storyId: String,
-        title: String,
+        title: Option[String] = None,
         imageId: Option[String] = None,
         partnerId: Option[String] = None,
         productInfo: Option[String] = None,
@@ -237,7 +237,7 @@ case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
 case class UpdateStory(
         credentials: EUCC,
         storyId: String,
-        title: String,
+        title: Option[String] = None,
         imageId: Option[String] = None,
         community: String,
         productInfo: Option[String]) extends EUM with EUI with SI
