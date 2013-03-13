@@ -20,7 +20,6 @@ define(
             },
             login: function(echoedUser){
                 this.modelUser.login(echoedUser);
-                console.log(this.options.callback);
                 if(this.options.callback) {
                     this.options.callback();
                     this.reset();
