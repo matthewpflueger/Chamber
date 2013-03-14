@@ -2,7 +2,7 @@
 -- Migration SQL that makes the change goes here.
 
 alter table Story
-  modify name varchar(255) null;
+  modify title varchar(255) null;
 
 
 --//@UNDO
