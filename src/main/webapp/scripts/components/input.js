@@ -98,7 +98,7 @@
                         }
                     });
                 } else {
-                    this.EvAg.trigger("login/init", null, "", self.close);
+                    this.EvAg.trigger("login/init", self.load, "", self.close);
                 }
             },
             unload: function(callback){
@@ -120,7 +120,6 @@
                 self.body = $('#story-summary-body');
 
                 if(this.modelStory.get("isNew")){
-//                    self.loadStoryInputTemplate();
                     self.loadChapterInputTemplate({});
                 } else if(this.modelStory.get("chapters").length > 0){
                     self.loadStoryCoverTemplate();
