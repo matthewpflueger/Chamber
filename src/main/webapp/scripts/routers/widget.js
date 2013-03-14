@@ -7,7 +7,7 @@ define(
                 this.EvAg = options.EvAg;
                 this.properties = options.properties;
                 this.modelContext = options.modelContext;
-                this.EvAg.bind('hash/reset', this.resetHash);
+                this.EvAg.bind('hash:reset', this.resetHash);
                 this.EvAg.bind('router/me', this.reload);
                 this.page = null;
             },
