@@ -66,19 +66,28 @@ case class StoryState(
         contentPath)
 
     def isCreated = createdOn > 0
-    def create(title: Option[String], productInfo: String, community: String, image: Option[Image], contentType: String) = {
-        val storyState = copy(
+    def create(
+            title: Option[String],
+            productInfo: String,
+            community: String,
+            image: Option[Image],
+            contentType: Option[String] = None,
+            contentPath: Option[String] = None) = {
+        val storyState = trySetContentTypeAndPath(contentType, contentPath).copy(
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
             productInfo = productInfo,
             community = community,
             imageId = image.map(_.id).orNull,
-            image = image,
-            contentType = contentType)
+            image = image)
         if (partnerSettings.moderateAll) storyState.moderate(partner.name, "Partner", partner.id)
         else storyState
     }
+
+    def trySetContentTypeAndPath(ct: Option[String], cp: Option[String]) = copy(
+            contentType = ct.getOrElse(this.contentType),
+            contentPath = cp.orElse(this.contentPath))
 
     def asStory = Story(
             id,

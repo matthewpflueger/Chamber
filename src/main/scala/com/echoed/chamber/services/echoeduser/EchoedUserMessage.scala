@@ -196,7 +196,8 @@ case class InitStory(
         echoId: Option[String] = None,
         partnerId: Option[String] = None,
         topicId: Option[String] = None,
-        contentType: Option[String] = None) extends EUM with EUI
+        contentType: Option[String] = None,
+        contentPath: Option[String] = None) extends EUM with EUI
 
 case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
         extends EUM with MR[StoryInfo, InitStory, EUE]
@@ -229,7 +230,8 @@ case class CreateStory(
         community: Option[String] = None,
         echoId: Option[String] = None,
         topicId: Option[String] = None,
-        contentType: Option[String] = None) extends EUM with EUI with SI
+        contentType: Option[String] = None,
+        contentPath: Option[String] = None) extends EUM with EUI with SI
 
 case class CreateStoryResponse(message: CreateStory, value: Either[EUE, Story])
         extends EUM with MR[Story, CreateStory, EUE]
