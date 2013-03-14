@@ -35,13 +35,21 @@ class StoryController extends EchoedController {
             @RequestParam(value = "partnerId", required = false) partnerId: String,
             @RequestParam(value = "topicId", required = false) topicId: String,
             @RequestParam(value = "contentType", required = false) contentType: String,
+            @RequestParam(value = "contentPath", required = false) contentPath: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Initializing story for {}", eucc.id)
 
         val result = new DeferredResult[StoryInfo](null, ErrorResult.timeout)
 
-        mp(InitStory(eucc, Option(storyId), Option(echoId), Option(partnerId), Option(topicId), Option(contentType))).onSuccess {
+        mp(InitStory(
+                eucc,
+                Option(storyId),
+                Option(echoId),
+                Option(partnerId),
+                Option(topicId),
+                Option(contentType),
+                Option(contentPath))).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
                 log.debug("Successfully initialized story for {}", eucc)
                 result.setResult(storyInfo)
@@ -63,13 +71,14 @@ class StoryController extends EchoedController {
             @RequestParam(value = "echoId", required = false) echoId: String,
             @RequestParam(value = "topicId", required = false) topicId: String,
             @RequestParam(value = "contentType", required = false) contentType: String,
+            @RequestParam(value = "contentPath", required = false) contentPath: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Making story {} for {}", title, eucc)
 
         val result = new DeferredResult[Story](null, ErrorResult.timeout)
 
-        mp(CreateStory(
+            mp(CreateStory(
                 eucc,
                 storyId,
                 Option(title),
@@ -79,7 +88,8 @@ class StoryController extends EchoedController {
                 Option(community),
                 Option(echoId),
                 Option(topicId),
-                Option(contentType))).onSuccess {
+                Option(contentType),
+                Option(contentPath))).onSuccess {
             case CreateStoryResponse(_, Right(story)) =>
                 log.debug("Successfully made story {} for {}", title, eucc)
                 result.setResult(story)

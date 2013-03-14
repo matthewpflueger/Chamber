@@ -87,22 +87,25 @@ class StoryService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case msg @ InitStory(_, Some(storyId), _, _, _, _) => readStory(storyId)
-            case msg @ InitStory(_, _, Some(echoId), _, _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
-            case msg @ InitStory(_, _, _, partnerId, topicId, _) => requestStory(partnerId, topicId)
+            case msg @ InitStory(_, Some(storyId), _, _, _, _, _) => readStory(storyId)
+            case msg @ InitStory(_, _, Some(echoId), _, _, _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
+            case msg @ InitStory(_, _, _, partnerId, topicId, _, _) => requestStory(partnerId, topicId)
             case msg: StoryIdentifiable => readStory(msg.storyId)
         }
     }
 
     private def initStory(s: StoryState) {
-        storyState = s
+        storyState = initMessage match {
+            case InitStory(_, _, _, _, _, ct, cp) => s.trySetContentTypeAndPath(ct, cp)
+            case _ => s
+        }
         context.parent ! RegisterStory(storyState.asStory)
         becomeOnline
     }
 
     def init = {
         case ReadStoryResponse(_, Left(StoryNotFound(_, _))) if (initMessage.isInstanceOf[CreateStory]) =>
-             requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
+            requestStory(initMessage.asInstanceOf[CreateStory].partnerId)
         case RequestStoryResponse(_, Right(RequestStoryResponseEnvelope(p, ps, t))) if (initMessage.isInstanceOf[CreateStory]) =>
             initStory(new StoryState(echoedUser, p, ps, topic = t).copy(id = initMessage.asInstanceOf[CreateStory].storyId))
 
@@ -117,9 +120,20 @@ class StoryService(
         case msg: InitStory => sender ! InitStoryResponse(msg, Right(storyState.asStoryInfo))
         case msg: CreateStory if (storyState.isCreated) => sender ! CreateStoryResponse(msg, Right(storyState.asStory))
 
-        case msg @ CreateStory(eucc, storyId, title, imageId, _, productInfo, community, _, topicId, contentType) =>
+        case msg @ CreateStory(
+                eucc,
+                storyId,
+                title,
+                imageId,
+                _,
+                productInfo,
+                community,
+                _,
+                topicId,
+                contentType,
+                contentPath) =>
             val image = imageId.map(processImage(_))
-            storyState = storyState.create(title, productInfo.orNull, community.orNull, image, contentType.orNull)
+            storyState = storyState.create(title, productInfo.orNull, community.orNull, image, contentType, contentPath)
             ep(StoryCreated(storyState))
             sender ! CreateStoryResponse(msg, Right(storyState.asStory))
             notifyStoryUpdate(eucc)
