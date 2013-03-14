@@ -41,6 +41,7 @@ class AppController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials,
             @RequestParam(value = "path") path: String,
+
             @RequestHeader("User-Agent") userAgent: String) = {
 
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))

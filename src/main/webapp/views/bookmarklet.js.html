@@ -3,6 +3,8 @@
     var i=0, path;
     var links = document.getElementsByTagName('link');
     var url = window.location;
+    var title = document.getElementsByTagName('title')[0].innerHTML;
+        alert(title);
     for(i = 0; i < links.length; i++){
         if(links[i].getAttribute('rel') === 'canonical'){
             url = links[i].getAttribute('href');
@@ -12,7 +14,7 @@
     var a = document.createElement('a');
     a.href = url;
     domain = a.hostname;
-    path = encodeURIComponent(a.pathname);
+    path = encodeURIComponent(a.pathname.split("#")[0]);
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     es.src = "{{https.site}}/app/js?pid=" + domain + "&path=" + path;

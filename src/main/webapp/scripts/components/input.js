@@ -89,6 +89,11 @@
                 var self = this;
                 var loadData = {};
                 loadData[this.type + "Id"] = this.id;
+                loadData["contentPath"] = this.modelContext.getPage();
+                loadData["contentType"] = this.modelContext.getContentTypeSinguilar();
+
+                console.log(loadData);
+
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
                         loadData: loadData,
