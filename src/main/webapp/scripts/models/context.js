@@ -21,6 +21,9 @@ define(
                 } else {
                     return null;
                 }
+            },
+            setPage: function(page){
+                this.set("page", page);
             }
         })
     }

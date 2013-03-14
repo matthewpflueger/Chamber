@@ -1,17 +1,18 @@
 (function(){
 
-    var i=0, domain = window.location.hostname, path;
+    var i=0, path;
     var links = document.getElementsByTagName('link');
-
+    var url = window.location;
     for(i = 0; i < links.length; i++){
         if(links[i].getAttribute('rel') === 'canonical'){
-            var url = links[i].getAttribute('href');
-            var a = document.createElement('a');
-            a.href = url;
-            domain = a.hostname;
-            path = encodeURIComponent(a.pathname);
+            url = links[i].getAttribute('href');
         }
     }
+
+    var a = document.createElement('a');
+    a.href = url;
+    domain = a.hostname;
+    path = encodeURIComponent(a.pathname);
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     es.src = "{{https.site}}/app/js?pid=" + domain + "&path=" + path;

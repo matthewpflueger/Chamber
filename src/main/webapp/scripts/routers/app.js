@@ -22,33 +22,44 @@ define(
                 this.page = null;
             },
             routes:{
-                "_=_":                      "fix",
-                "!":                        "feed",
-                "":                         "feed",
-                "!story/:id":               "story",
-                "story/:id":                "story",
-                "!photo/:id":               "photo",
-                "photo/:id":                "photo",
-                "!write/:id" :              "write",
-                "!write":                   "write",
-                "write/:id" :               "write",
-                "write":                    "write",
-                "me/feed/:type":            "feed",
-                "me/feed/:type/":           "feed",
-                "explore":                  "explore",
-                "explore/:type":            "explore",
-                "!explore/:type":           "explore",
-                ":context/:id":             "content",
-                ":context/:id/":            "content",
-                ":context/:id/:type":       "content",
-                ":context/:id/:type/":      "content",
-                ":context/:id/:type/:type2":"content"
+                "_=_":                              "fix",
+                "!":                                "feed",
+                "":                                 "feed",
+                "!story/:id":                       "story",
+                "story/:id":                        "story",
+                "!photo/:id":                       "photo",
+                "photo/:id":                        "photo",
+                "!write/:id" :                      "write",
+                "!write":                           "write",
+                "write/:id" :                       "write",
+                "write":                            "write",
+                "me/feed/:type":                    "feed",
+                "me/feed/:type/":                   "feed",
+                "explore":                          "explore",
+                "explore/:type":                    "explore",
+                "!explore/:type":                   "explore",
+                "partner/:id/page/*path":           "partnerPage",
+                ":context/:id":                     "content",
+                ":context/:id/":                    "content",
+                ":context/:id(/:type)(/:type2)":    "content"
             },
             fix: function(){
                 window.location.href = "#";
             },
             change: function(){
                 this.feed();
+            },
+            partnerPage: function(id, path){
+                var self = this;
+                var url = "partner/" + id;
+                var page = url;
+                if(this.page !== page) {
+                    this.page = page;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
+                        self.modelContext.setPage(path);
+                    });
+                }
             },
             content: function(context, id, type, type2){
                 var self =      this;
