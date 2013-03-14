@@ -94,13 +94,13 @@ class MeController extends EchoedController {
     }
 
 
-    @RequestMapping(value = Array("/feed", "/feed/stories"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getFeedStories(
                       @RequestParam(value = "page", required = false) page: String,
                       eucc: EchoedUserClientCredentials) = {
 
-        getFeedContent(Story.storyContentDescription, page, eucc)
+        getFeedContent(Story.discussionContentDescription, page, eucc)
     }
 
     @RequestMapping(value = Array("/feed/photos"), method = Array(RequestMethod.GET))
@@ -116,6 +116,17 @@ class MeController extends EchoedController {
     def getFeedReviews(@RequestParam(value = "page", required = false) page: String,
                        eucc: EchoedUserClientCredentials) = {
         getFeedContent(Story.reviewContentDescription, page, eucc)
+    }
+
+    @RequestMapping(value = Array("/feed/{contentType}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getFeedContentType(
+        @PathVariable(value = "contentType") contentType: String,
+        @RequestParam(value = "page", required = false) page: String,
+        eucc: EchoedUserClientCredentials) = {
+
+        getFeedContent(Story.getContentDescriptionFromEndpoint(contentType), page, eucc)
+
     }
 
     def getFeedContent(contentType: ContentDescription,
@@ -161,6 +172,19 @@ class MeController extends EchoedController {
         getOwnContent(Story.reviewContentDescription, page, eucc)
 
     }
+
+    @RequestMapping(value = Array("/{contentType}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getOwnContentType(
+        @PathVariable(value = "contentType") contentType: String,
+        @RequestParam(value = "page", required = false) page: String,
+        eucc: EchoedUserClientCredentials) = {
+
+        getFeedContent(Story.getContentDescriptionFromEndpoint(contentType), page, eucc)
+
+    }
+
+
 
     def getOwnContent(contentType: ContentDescription,
                       page: String,

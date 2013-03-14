@@ -1,12 +1,19 @@
 package com.echoed.util.datastructure
 
 import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
-import com.echoed.chamber.domain.public.StoryPublic
 import com.echoed.chamber.domain.Story
+import collection.immutable.TreeMap
 
 class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
 
-    private var cache = Map[ContentDescription, ContentTree]()
+    implicit object ContentOrdering extends Ordering[ContentDescription] {
+        def compare(a: ContentDescription, b: ContentDescription) = {
+            a.ordering compare b.ordering
+        }
+    }
+
+//    private var cache = Map[ContentDescription, ContentTree]()
+    private var cache =  TreeMap[ContentDescription, ContentTree]()(ContentOrdering)
 
     defaultContentDescriptions.map(initContentTree(_))
 

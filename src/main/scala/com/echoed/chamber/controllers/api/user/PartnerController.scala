@@ -80,6 +80,19 @@ class PartnerController extends EchoedController {
 
     }
 
+    @RequestMapping(value = Array("{partnerId}/{contentType}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getPartnerContentType(
+                        @PathVariable(value = "partnerId") partnerId: String,
+                        @PathVariable(value = "contentType") contentType: String,
+                        @RequestParam(value = "page", required = false) page: String,
+                        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+
+        getPartnerContent(Story.getContentDescriptionFromEndpoint(contentType), partnerId, page, origin)
+
+    }
+
+
     def getPartnerContent(
         contentType:    ContentDescription,
         partnerId:      String,
