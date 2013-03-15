@@ -51,7 +51,6 @@ class PartnerController extends EchoedController {
             @RequestParam(value = "startsWith", required = false, defaultValue = "false") startsWith: Boolean,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-
         getPartnerContent(Content.defaultContentDescription, partnerId, contentPath, startsWith, page, origin)
     }
 

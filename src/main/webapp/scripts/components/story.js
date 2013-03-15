@@ -146,11 +146,12 @@ define(
             render: function(){
                 var self = this;
                 var view = {
-                    story: this.modelStory.toJSON(),
-                    profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
-                    isWidget: this.properties.isWidget,
-                    isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
-                    userLink: "#user/" + this.modelStory.get("echoedUser").id
+                    story:              this.modelStory.toJSON(),
+                    profilePhotoUrl:    utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
+                    isWidget:           this.properties.isWidget,
+                    isMine:             this.modelUser.is(this.modelStory.get("echoedUser").id),
+                    userLink:           "#user/" + this.modelStory.get("echoedUser").id,
+                    partnerLink:        "#partner/" + this.modelStory.get("partner").id
                 };
 
                 var template = templateStory(view);

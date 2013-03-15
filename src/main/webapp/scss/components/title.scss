@@ -149,6 +149,7 @@
 }
 
 #title-action-button{
-    @include        buttonRed();
+    @include        buttonGreen();
+    margin:         3px 0px;
     float: right;
 }
