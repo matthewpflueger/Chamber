@@ -178,6 +178,9 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
+
+                var partner = this.modelStory.get("partner");
+                partner.page = this.modelStory.get("contentPath");
                 this.modelPartner.set(this.modelStory.get("partner"));
             },
             renderGalleryNav: function(){

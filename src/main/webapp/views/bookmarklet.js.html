@@ -17,7 +17,8 @@
     title  =    encodeURIComponent(title);
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
-    es.src = "{{https.site}}/app/js?pid=" + domain + "&path=" + path + "&title=" + title;
+    var html = "{{https.site}}/app/js?pid=" + domain + "&path=" + path + "&title=" + title;
+    es.src = html;
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(es, s);
 
 })();

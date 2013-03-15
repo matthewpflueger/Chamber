@@ -53,6 +53,7 @@ define(
                 var self = this;
                 var url = "partner/" + id;
                 var page = url;
+                var path = path.split('#')[0];
                 if(this.page !== page) {
                     this.page = page;
                     this.requestFeed(url, function(jsonUrl, data){
