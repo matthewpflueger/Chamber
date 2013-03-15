@@ -11,6 +11,7 @@ import com.echoed.chamber.domain.{Story, Topic}
 import com.echoed.chamber.domain.views.{ Feed }
 import com.echoed.chamber.services.partner.{TopicEvent, TopicUpdated, TopicCreated}
 import com.echoed.chamber.domain.views.context.TopicContext
+import com.echoed.chamber.domain.views.content.Content
 
 class TopicService(
         mp: MessageProcessor,
@@ -91,7 +92,11 @@ class TopicService(
                 mp(RequestTopicStoryFeed(topicId, page))
                     .mapTo[RequestTopicStoryFeedResponse]
                     .map(_.resultOrException)
-                    .map(feed => sender ! ReadTopicFeedResponse(msg, Right(new Feed[TopicContext](new TopicContext(topic, Story.storyContentDescription), feed.content, feed.nextPage ))))
+                    .map(feed => sender ! ReadTopicFeedResponse(msg,  Right(new Feed[TopicContext](new TopicContext(
+                            topic,
+                            Content.storyContentDescription),
+                            feed.content,
+                            feed.nextPage ))))
             }
     }
 }

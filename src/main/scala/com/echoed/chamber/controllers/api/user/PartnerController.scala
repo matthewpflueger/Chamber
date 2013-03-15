@@ -9,7 +9,7 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.content.{ContentDescription, PhotoContent}
+import com.echoed.chamber.domain.views.content.{Content, ContentDescription, PhotoContent}
 import com.echoed.chamber.services.partneruser._
 import scala.beans.BeanProperty
 import java.util.Date
@@ -43,61 +43,35 @@ import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryS
 @RequestMapping(Array("/api/partner"))
 class PartnerController extends EchoedController {
 
-
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
-    @RequestMapping(value = Array("{partnerId}", "{partnerId}/stories"), method=Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def getPartnerContentStories(
-                       @PathVariable(value = "partnerId") partnerId: String,
-                       @RequestParam(value = "page", required = false) page: String,
-                       @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+            @PathVariable(value = "partnerId") partnerId: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        getPartnerContent(Story.storyContentDescription, partnerId, page, origin)
-
+        getPartnerContent(Content.defaultContentDescription, partnerId, page, origin)
     }
 
-    @RequestMapping(value = Array("{partnerId}/photos"), method=Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{partnerId}/{contentType}"), method=Array(RequestMethod.GET))
     @ResponseBody
-    def getPartnerContentPhotos(
-                             @PathVariable(value = "partnerId") partnerId: String,
-                             @RequestParam(value = "page", required = false) page: String,
-                             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+    def getPartnerContentOther(
+            @PathVariable(value = "partnerId") partnerId: String,
+            @PathVariable(value = "contentType") contentType: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        getPartnerContent(PhotoContent.contentDescription, partnerId, page, origin)
-
+        getPartnerContent(Content.getContentDescription(contentType), partnerId, page, origin)
     }
-
-    @RequestMapping(value = Array("{partnerId}/reviews"), method=Array(RequestMethod.GET))
-    @ResponseBody
-    def getPartnerContentReview(
-                                       @PathVariable(value = "partnerId") partnerId: String,
-                                       @RequestParam(value = "page", required = false) page: String,
-                                       @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-
-        getPartnerContent(Story.reviewContentDescription, partnerId, page, origin)
-
-    }
-
-    @RequestMapping(value = Array("{partnerId}/{contentType}"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getPartnerContentType(
-                        @PathVariable(value = "partnerId") partnerId: String,
-                        @PathVariable(value = "contentType") contentType: String,
-                        @RequestParam(value = "page", required = false) page: String,
-                        @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-
-        getPartnerContent(Story.getContentDescriptionFromEndpoint(contentType), partnerId, page, origin)
-
-    }
-
 
     def getPartnerContent(
-        contentType:    ContentDescription,
-        partnerId:      String,
-        page:           String,
-        origin:         String) = {
+            contentType:    ContentDescription,
+            partnerId:      String,
+            page:           String,
+            origin:         String) = {
 
         val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
 
@@ -107,18 +81,12 @@ class PartnerController extends EchoedController {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
-
     }
 
 
-
-
-
-
-
-    @RequestMapping(value = Array("{partnerId}/followers"), method = Array(RequestMethod.GET))
+    @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getPartnerFollowers( @PathVariable(value = "partnerId") partnerId: String) = {
+    def getPartnerFollowers(@PathVariable(value = "partnerId") partnerId: String) = {
 
         val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
 
@@ -132,8 +100,8 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.PUT))
     @ResponseBody
     def putPartnerFollower(
-        @PathVariable(value = "partnerId") partnerId: String,
-        eucc: EchoedUserClientCredentials) = {
+            @PathVariable(value = "partnerId") partnerId: String,
+            eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
 
@@ -146,8 +114,8 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.DELETE))
     @ResponseBody
     def deletePartnerFollower(
-        @PathVariable(value = "partnerId") partnerId: String,
-        eucc: EchoedUserClientCredentials) = {
+            @PathVariable(value = "partnerId") partnerId: String,
+            eucc: EchoedUserClientCredentials) = {
 
         val result = new DeferredResult[List[PartnerFollower]](null, ErrorResult.timeout)
 
@@ -155,12 +123,11 @@ class PartnerController extends EchoedController {
             case UnFollowPartnerResponse(_, Right(fp)) => result.setResult(fp)
         }
         result
-
     }
 
     @RequestMapping(value = Array("/{partnerId}/topics}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getPartnerTopics(@PathVariable(value = "id") partnerId: String)= {
+    def getPartnerTopics(@PathVariable(value = "id") partnerId: String) = {
         val result = new DeferredResult[List[Topic]](null, ErrorResult.timeout)
 
         mp(RequestTopics(new PartnerClientCredentials(partnerId))).onSuccess {
@@ -170,7 +137,6 @@ class PartnerController extends EchoedController {
     }
 
 
-    //SECURE END POINTS
     @RequestMapping(
         value = Array("/topics"),
         method = Array(RequestMethod.POST),
@@ -199,13 +165,13 @@ class PartnerController extends EchoedController {
         val result = new DeferredResult[Topic](null, ErrorResult.timeout)
 
         mp(PutTopic(
-            PartnerClientCredentials(pucc.partnerId.get),
-            topic.title,
-            Option(topic.description),
-            Option(topic.beginOn),
-            Option(topic.endOn),
-            id.orElse(Option(topic.id)),
-            Option(topic.community))).onSuccess {
+                PartnerClientCredentials(pucc.partnerId.get),
+                topic.title,
+                Option(topic.description),
+                Option(topic.beginOn),
+                Option(topic.endOn),
+                id.orElse(Option(topic.id)),
+                Option(topic.community))).onSuccess {
             case PutTopicResponse(_, Right(t)) =>
                 result.setResult(t)
         }
@@ -231,8 +197,8 @@ class PartnerController extends EchoedController {
         consumes = Array("application/json"))
     @ResponseBody
     def putCustomization(
-                            @RequestBody cParams: CustomizationParams,
-                            pucc: PartnerUserClientCredentials) = {
+            @RequestBody cParams: CustomizationParams,
+            pucc: PartnerUserClientCredentials) = {
 
         val result = new DeferredResult[Map[String, Any]](null, ErrorResult.timeout)
         val params = new ScalaObjectMapper().convertValue(cParams, classOf[Map[String, Any]])
@@ -249,10 +215,10 @@ class PartnerController extends EchoedController {
     @RequestMapping(value = Array("/stories"), method = Array(RequestMethod.GET))
     @ResponseBody
     def queryStories(
-                        @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
-                        @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
-                        @RequestParam(value = "moderated", required = false) moderated: String,
-                        pucc: PartnerUserClientCredentials) = {
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "30") pageSize: Int,
+            @RequestParam(value = "moderated", required = false) moderated: String,
+            pucc: PartnerUserClientCredentials) = {
 
         val result = new DeferredResult[List[StoryState]](null, ErrorResult.timeout)
 

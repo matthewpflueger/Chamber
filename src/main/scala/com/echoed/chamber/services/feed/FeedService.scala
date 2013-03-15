@@ -25,7 +25,7 @@ class FeedService(
 
     import context.dispatcher
 
-    private val contentManager = new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
+    private val contentManager = new ContentManager(Content.allContentDescriptions)
     var contentMap = HashMap.empty[String, Content]
 
     val pageSize = 30
