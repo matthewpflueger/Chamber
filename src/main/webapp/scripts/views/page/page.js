@@ -20,8 +20,10 @@ define(
                 var partner = this.modelPartner.toJSON();
                 if(partner.name === 'Echoed'){
                     this.element.addClass("blue")
+                    this.element.removeClass('black');
                 } else {
                     this.element.removeClass('blue');
+                    this.element.addClass('black');
                 }
             }
         });
