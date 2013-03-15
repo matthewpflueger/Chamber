@@ -9,14 +9,13 @@ import java.lang.{NumberFormatException => NFE}
 import scala.Right
 import com.echoed.chamber.domain._
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.content.PhotoContent
+import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
 import com.echoed.chamber.services.echoeduser._
 import views.Feed
 import views.context.UserContext
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeedResponse
 import com.echoed.chamber.services.echoeduser.RequestUserContentFeed
-import com.echoed.chamber.domain.public.StoryPublic
 
 
 @Controller
@@ -27,38 +26,33 @@ class UserController extends EchoedController {
     private val failAsZero = failAsValue(classOf[NFE])(0)
     private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
 
+    @RequestMapping(value = Array("/{id}"), method = Array(RequestMethod.GET))
+    @ResponseBody
+    def getUserDefaultContent(
+                    @PathVariable(value ="id") id: String,
+                    @RequestParam(value = "page", required = false) page: String,
+                    @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
+        getUserContent(id, Content.defaultContentDescription, page, origin)
+
     @RequestMapping(value = Array("/{id}/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getUserContent(
-                    @PathVariable(value = "id") id: String,
-                    @PathVariable(value = "contentType") contentType: String,
-                    @RequestParam(value = "page", required = false) page: String,
-                    @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
+    def getUserOtherContent(
+            @PathVariable(value ="id") id: String,
+            @PathVariable(value = "contentType") contentType: String,
+            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
+        getUserContent(id, Content.getContentDescription(contentType), page, origin)
 
+
+    def getUserContent(id: String, contentDescription: ContentDescription, page: String, origin: String) = {
         log.debug("Getting feed for {}", id)
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), Story.getContentDescriptionFromEndpoint(contentType))).onSuccess {
-            case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
-        }
-
-        result
-    }
-
-
-    @RequestMapping(value = Array("/{id}/photos"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getUserContentPhotos(
-                         @PathVariable(value ="id") id: String,
-                         @RequestParam(value = "page", required = false) page: String,
-                         @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
-
-        log.debug("Getting feed for {}", id)
-
-        val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
-
-        mp(RequestUserContentFeed(new EchoedUserClientCredentials(id), parse(page), PhotoContent.contentDescription)).onSuccess {
+        mp(RequestUserContentFeed(
+                new EchoedUserClientCredentials(id),
+                parse(page),
+                contentDescription)).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 

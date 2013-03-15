@@ -30,9 +30,6 @@ case class StoryPublic (
     def numVotes =     votes.values.toList.foldLeft(0)((l, r) => l + r.value)
     def numComments =  comments.length
 
-    def contentDescription = story.contentDescription
-
-
     def this(story: StoryFull) = this(
         story.id,
         story.story,

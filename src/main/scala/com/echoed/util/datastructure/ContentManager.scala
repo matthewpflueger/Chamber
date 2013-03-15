@@ -60,9 +60,9 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
 
     def getHighlights = {
         var s = List[Map[String, Any]]()
-        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(Story.storyContentDescription)) :: s
-        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(Story.storyContentDescription)) :: s
-        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(Story.storyContentDescription)) :: s
+        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(Content.storyContentDescription)) :: s
+        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(Content.storyContentDescription)) :: s
+        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(Content.storyContentDescription)) :: s
         s
     }
 

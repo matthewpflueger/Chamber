@@ -42,7 +42,7 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
 
-    private val contentManager = new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
+    private val contentManager = new ContentManager(Content.allContentDescriptions)
 
     private var contentLoaded = false
 

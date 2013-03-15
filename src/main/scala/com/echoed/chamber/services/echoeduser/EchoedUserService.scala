@@ -76,9 +76,9 @@ class EchoedUserService(
     private var followedByUsers =   List[Follower]()
     private var followingPartners = List[PartnerFollower]()
 
-    private val followingContentManager =   new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
-    private val publicContentManager =      new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
-    private val privateContentManager =     new ContentManager(Story.defaultContentDescriptions ::: List(PhotoContent.contentDescription))
+    private val followingContentManager =   new ContentManager(Content.allContentDescriptions)
+    private val publicContentManager =      new ContentManager(Content.allContentDescriptions)
+    private val privateContentManager =     new ContentManager(Content.allContentDescriptions)
 
     private var contentLoaded =         false
     private var customContentLoaded =   false

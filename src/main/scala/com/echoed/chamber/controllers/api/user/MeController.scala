@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse
 import com.echoed.chamber.domain._
 import scala.collection.immutable.Stack
 import scala.concurrent.ExecutionContext.Implicits.global
-import views.content.{ContentDescription, PhotoContent}
+import com.echoed.chamber.domain.views.content.{Content, ContentDescription, PhotoContent}
 import views.Feed
 import com.echoed.chamber.domain.views.context._
 import com.echoed.chamber.services.echoeduser.FetchNotifications
@@ -32,7 +32,6 @@ import com.echoed.chamber.domain.Notification
 import com.echoed.chamber.services.echoeduser.ReadSettings
 import com.echoed.chamber.services.echoeduser.FetchNotificationsResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
-import com.echoed.chamber.domain.public.StoryPublic
 
 
 @Controller
@@ -57,8 +56,8 @@ class MeController extends EchoedController {
     @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
     @ResponseBody
     def postNotifications(
-                             @RequestParam(value = "ids", required = true) ids: Array[String],
-                             eucc: EchoedUserClientCredentials) = {
+            @RequestParam(value = "ids", required = true) ids: Array[String],
+            eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[Boolean](null, ErrorResult.timeout)
 
         mp(MarkNotificationsAsRead(eucc, ids.toSet)).onSuccess {
@@ -83,8 +82,8 @@ class MeController extends EchoedController {
     @RequestMapping(value = Array("/settings"), method = Array(RequestMethod.POST))
     @ResponseBody
     def postSettings(
-                       @RequestBody(required = true) settings: Map[String, AnyRef],
-                       eucc: EchoedUserClientCredentials) = {
+            @RequestBody(required = true) settings: Map[String, AnyRef],
+            eucc: EchoedUserClientCredentials) = {
         val result = new DeferredResult[EchoedUserSettings](null, ErrorResult.timeout)
 
         mp(NewSettings(eucc, settings)).onSuccess {
@@ -97,36 +96,18 @@ class MeController extends EchoedController {
     @RequestMapping(value = Array("/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getFeedStories(
-                      @RequestParam(value = "page", required = false) page: String,
-                      eucc: EchoedUserClientCredentials) = {
-
-        getFeedContent(Story.discussionContentDescription, page, eucc)
-    }
-
-    @RequestMapping(value = Array("/feed/photos"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getFeedPhotos(
-                    @RequestParam(value = "page", required = false) page: String,
-                    eucc: EchoedUserClientCredentials) = {
-        getFeedContent(PhotoContent.contentDescription, page, eucc)
-    }
-
-    @RequestMapping(value = Array("/feed/reviews"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getFeedReviews(@RequestParam(value = "page", required = false) page: String,
-                       eucc: EchoedUserClientCredentials) = {
-        getFeedContent(Story.reviewContentDescription, page, eucc)
+            @RequestParam(value = "page", required = false) page: String,
+            eucc: EchoedUserClientCredentials) = {
+        getFeedContent(Content.defaultContentDescription, page, eucc)
     }
 
     @RequestMapping(value = Array("/feed/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getFeedContentType(
-        @PathVariable(value = "contentType") contentType: String,
-        @RequestParam(value = "page", required = false) page: String,
-        eucc: EchoedUserClientCredentials) = {
-
-        getFeedContent(Story.getContentDescriptionFromEndpoint(contentType), page, eucc)
-
+    def getFeed(
+            @PathVariable(value = "contentType") contentType: String,
+            @RequestParam(value = "page", required = false) page: String,
+            eucc: EchoedUserClientCredentials) = {
+        getFeedContent(Content.getContentDescription(contentType), page, eucc)
     }
 
     def getFeedContent(contentType: ContentDescription,
@@ -139,52 +120,26 @@ class MeController extends EchoedController {
                 result.setResult(sf)
         }
         result
-
     }
 
 
-    @RequestMapping(value = Array("", "/stories"), method = Array(RequestMethod.GET))
+    @RequestMapping(method = Array(RequestMethod.GET))
     @ResponseBody
     def getOwnStories(
-                   @RequestParam(value = "page", required = false) page: String,
-                   eucc: EchoedUserClientCredentials) = {
-
-        getOwnContent(Story.storyContentDescription, page, eucc)
-
-    }
-
-    @RequestMapping(value = Array("/photos"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getOwnPhotos(
-                      @RequestParam(value = "page", required = false) page: String,
-                      eucc: EchoedUserClientCredentials) = {
-
-        getOwnContent(PhotoContent.contentDescription, page, eucc)
-
-    }
-
-    @RequestMapping(value = Array("/reviews"), method = Array(RequestMethod.GET))
-    @ResponseBody
-    def getOwnReviews(
-                            @RequestParam(value = "page", required = false) page: String,
-                            eucc: EchoedUserClientCredentials) = {
-
-        getOwnContent(Story.reviewContentDescription, page, eucc)
-
+            @RequestParam(value = "page", required = false) page: String,
+            eucc: EchoedUserClientCredentials) = {
+        getOwnContent(Content.defaultContentDescription, page, eucc)
     }
 
     @RequestMapping(value = Array("/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getOwnContentType(
-        @PathVariable(value = "contentType") contentType: String,
-        @RequestParam(value = "page", required = false) page: String,
-        eucc: EchoedUserClientCredentials) = {
+    def getOwn(
+            @PathVariable(value = "contentType") contentType: String,
+            @RequestParam(value = "page", required = false) page: String,
+            eucc: EchoedUserClientCredentials) = {
 
-        getFeedContent(Story.getContentDescriptionFromEndpoint(contentType), page, eucc)
-
+        getOwnContent(Content.getContentDescription(contentType), page, eucc)
     }
-
-
 
     def getOwnContent(contentType: ContentDescription,
                       page: String,
