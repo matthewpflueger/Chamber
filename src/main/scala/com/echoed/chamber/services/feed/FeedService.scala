@@ -33,7 +33,7 @@ class FeedService(
     private def updateContentManager(content: Content) {
         content match {
             case c: StoryPublic =>
-                if(c.isPublished) {
+                if(c.isPublished && !c.isEchoedModerated && !c.isModerated) {
                     contentManager.updateContent(c)
                     c.extractImages.map { i => contentManager.updateContent(new PhotoContent(i, c)) }
                 }

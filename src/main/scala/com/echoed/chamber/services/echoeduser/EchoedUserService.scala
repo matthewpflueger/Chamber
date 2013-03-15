@@ -350,7 +350,6 @@ class EchoedUserService(
             }
             becomeContentLoaded
 
-
         case msg @ RequestOwnContent(_, contentType, page) if(!contentLoaded) =>
             stash()
             getContent

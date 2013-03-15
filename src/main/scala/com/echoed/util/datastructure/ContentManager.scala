@@ -3,7 +3,7 @@ package com.echoed.util.datastructure
 import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
 import collection.immutable.TreeMap
 
-class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
+class ContentManager(defaultContentDescriptions: List[ContentDescription], defaultContentDescription: ContentDescription = Content.discussionContentDescription) {
 
     implicit object ContentOrdering extends Ordering[ContentDescription] {
         def compare(a: ContentDescription, b: ContentDescription) = {
@@ -11,7 +11,6 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
         }
     }
 
-//    private var cache = Map[ContentDescription, ContentTree]()
     private var cache =  TreeMap[ContentDescription, ContentTree]()(ContentOrdering)
 
     defaultContentDescriptions.map(initContentTree(_))
@@ -19,11 +18,11 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
     def this() = this(List())
 
     def initContentTree(c: ContentDescription) =
-            cache.get(c).getOrElse {
-                val tree = new ContentTree(c)
-                cache += (c -> tree)
-                tree
-            }
+        cache.get(c).getOrElse {
+            val tree = new ContentTree(c)
+            cache += (c -> tree)
+            tree
+        }
 
     def deleteContent(c: Content): Unit = cache.get(c.contentDescription).foreach(_.deleteContent(c))
 
@@ -37,6 +36,14 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
             contentPath: Option[String] = None,
             startsWith: Option[Boolean] = Some(false)) = {
         cache.get(c).map(_.getContentFromTree(contentPath, startsWith, page)).getOrElse(ContentTreeContext())
+    }
+
+    def getDefaultContent(page: Int) = {
+        getContent(defaultContentDescription, Option(page))
+    }
+
+    def getDefaultContentType = {
+        defaultContentDescription
     }
 
     def getAllContent = cache.values.foldLeft(List[Content]())((l, r) => r.getAllContentFromTree ::: l)
