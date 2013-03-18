@@ -58,9 +58,9 @@ define(
                     this.page = page;
                     this.requestFeed(url, function(jsonUrl, data){
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
-                        if(Echoed.title) {
-                            self.modelContext.setPage(path, Echoed.title);
-                            Echoed.title = null;
+                        if(Echoed.pageTitle) {
+                            self.modelContext.setPage(path, Echoed.pageTitle);
+                            Echoed.pageTitle = null;
                             Echoed.path =  null;
                         }
                     });

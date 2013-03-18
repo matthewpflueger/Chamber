@@ -52,7 +52,7 @@ class AppController extends EchoedController {
                     modelAndView.addObject("partnerId", pcc.partnerId)
                     modelAndView.addObject("partner", p.partner)
                     modelAndView.addObject("path", path)
-                    modelAndView.addObject("title", title)
+                    modelAndView.addObject("pageTitle", title)
                     modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                     modelAndView.addObject("customization", p.customization)
                     result.setResult(modelAndView)
@@ -72,7 +72,7 @@ class AppController extends EchoedController {
         modelAndView.addObject("echoedUser",    eucc)
         modelAndView.addObject("partnerId",     partnerId)
         modelAndView.addObject("path",          path)
-        modelAndView.addObject("title",         title)
+        modelAndView.addObject("pageTitle",     title)
         modelAndView
     }
 }

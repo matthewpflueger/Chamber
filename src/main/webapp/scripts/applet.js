@@ -18,8 +18,8 @@ require(
         if(Echoed.path !== "/") {
             overlayUrl += "&path=" + encodeURIComponent(Echoed.path);
         }
-        if(Echoed.title) {
-            overlayUrl += "&title=" + encodeURIComponent(Echoed.title);
+        if(Echoed.pageTitle) {
+            overlayUrl += "&title=" + encodeURIComponent(Echoed.pageTitle);
         }
 
         this.properties = {
