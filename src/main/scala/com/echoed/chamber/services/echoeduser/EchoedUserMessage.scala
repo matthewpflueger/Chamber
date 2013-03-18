@@ -396,16 +396,15 @@ case class ReadAllUserContentResponse(message: ReadAllUserContent, value: Either
     extends EUM with MR[List[Content], ReadAllUserContent, EUE]
 
 
-//Request Messages: Returns to controller
-case class RequestOwnContent(credentials: EUCC, page: Int, c: ContentDescription) extends EUM with EUI
+case class RequestOwnContent(credentials: EUCC, c: ContentDescription, page: Option[Int]) extends EUM with EUI
 case class RequestOwnContentResponse(message: RequestOwnContent, value: Either[EUE, Feed[SelfContext]])
     extends EUM with MR[Feed[SelfContext], RequestOwnContent, EUE]
 
-case class RequestCustomUserFeed(credentials: EUCC, page: Int, c: ContentDescription)  extends EUM with EUI
+case class RequestCustomUserFeed(credentials: EUCC, c: ContentDescription, page: Option[Int])  extends EUM with EUI
 case class RequestCustomUserFeedResponse(message: RequestCustomUserFeed, value: Either[EUE, Feed[PersonalizedContext]])
     extends EUM with MR[Feed[PersonalizedContext], RequestCustomUserFeed, EUE]
 
-case class RequestUserContentFeed(credentials: EUCC, page: Int, c: ContentDescription) extends EUM with EUI
+case class RequestUserContentFeed(credentials: EUCC, c: ContentDescription, page: Option[Int]) extends EUM with EUI
 case class RequestUserContentFeedResponse(message: RequestUserContentFeed, value: Either[EUE, Feed[UserContext]])
     extends EUM with MR[Feed[UserContext], RequestUserContentFeed, EUE]
 

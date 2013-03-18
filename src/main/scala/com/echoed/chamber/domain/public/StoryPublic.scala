@@ -22,6 +22,7 @@ case class StoryPublic (
         topic: TopicPublic) extends Content {
 
     val contentType =  story.contentType
+    override val contentPath =  story.contentPath
     val title =        story.title.orNull
 
     def createdOn =    story.createdOn

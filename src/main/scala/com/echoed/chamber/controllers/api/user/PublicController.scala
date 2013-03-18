@@ -19,27 +19,23 @@ import com.echoed.chamber.services.feed._
 @RequestMapping(Array("/api"))
 class PublicController extends EchoedController {
 
-
-    private val failAsZero = failAsValue(classOf[NFE])(0)
-    private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
-
     @RequestMapping(value = Array("/public/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
-    def getPublicStories(@RequestParam(value = "page", required = false) page: String) =
+    def getPublicStories(@RequestParam(value = "page", required = false, defaultValue = "0") page: Int) =
             getPublicContent(Content.defaultContentDescription, page)
 
     @RequestMapping(value = Array("/public/feed/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getPublicFeed(
             @PathVariable(value = "contentType") contentType: String,
-            @RequestParam(value = "page", required = false) page: String) =
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int) =
         getPublicContent(Content.getContentDescription(contentType), page)
 
 
-    def getPublicContent(contentType: ContentDescription, page: String) = {
+    def getPublicContent(contentType: ContentDescription, page: Int) = {
         val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
 
-        mp(RequestPublicContent(contentType, parse(page))).onSuccess {
+        mp(RequestPublicContent(contentType, Option(page))).onSuccess {
             case RequestPublicContentResponse(_, Right(feed)) => result.setResult(feed)
         }
         result

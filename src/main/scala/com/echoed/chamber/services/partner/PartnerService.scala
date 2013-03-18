@@ -18,7 +18,7 @@ import scala.Some
 import com.echoed.chamber.domain.views.Feed
 import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.domain.public.StoryPublic
-import com.echoed.util.datastructure.ContentManager
+import com.echoed.util.datastructure.{ContentTreeContext, ContentManager}
 import com.echoed.chamber.domain.views.content.{ContentDescription, Content, PhotoContent}
 
 
@@ -55,12 +55,12 @@ class PartnerService(
         }
     }
 
-    private def partnerContext(contentType: ContentDescription) = {
+    private def partnerContext(contentType: ContentDescription, content: ContentTreeContext) = {
         new PartnerContext(
             partner,
             contentType,
             getStats ::: contentManager.getStats,
-            contentManager.getHighlights,
+            content.highlights,
             contentManager.getContentList)
     }
 
@@ -183,31 +183,29 @@ class PartnerService(
             content.map(updateContentManager(_))
             becomeContentLoaded
 
-        case msg @ ReadAllPartnerContent(_) =>
-            if(!contentLoaded) {
-                stash()
-                getContent
-            } else {
-                val content = contentManager.getAllContent
-                sender ! ReadAllPartnerContentResponse(msg, Right(content))
-            }
+        case msg @ ReadAllPartnerContent(_) if (!contentLoaded) =>
+            stash()
+            getContent
 
-        case msg @ RequestPartnerContent(_, page, origin, _type) =>
-            if(!contentLoaded){
-                stash()
-                getContent
-            } else {
-                val content =   contentManager.getContent(_type, page)
-                val sf =        new Feed(
-                                    partnerContext(_type),
-                                    content._1,
-                                    content._2)
-                sender ! RequestPartnerContentResponse(msg, Right(sf))
-            }
+        case msg @ ReadAllPartnerContent(_) =>
+            val content = contentManager.getAllContent
+            sender ! ReadAllPartnerContentResponse(msg, Right(content))
+
+        case msg @ RequestPartnerContent(_, origin, contentType, contentPath, startsWith, page) if (!contentLoaded) =>
+            stash()
+            getContent
+
+        case msg @ RequestPartnerContent(_, origin, contentType, contentPath, startsWith, page) =>
+            val content = contentManager.getContent(contentType, page, contentPath, startsWith)
+            val sf = new Feed(
+                    partnerContext(contentType, content),
+                    content.content,
+                    content.nextPage)
+            sender ! RequestPartnerContentResponse(msg, Right(sf))
 
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(
-                        partnerContext(null),
+                        new PartnerContext(partner),
                         followedByUsers,
                         null)
             sender ! RequestPartnerFollowersResponse(msg, Right(feed))

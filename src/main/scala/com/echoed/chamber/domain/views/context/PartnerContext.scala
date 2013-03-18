@@ -22,5 +22,6 @@ case class PartnerContext(
         highlights:     List[Map[String, Any]],
         content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), contentType, stats, highlights, content )
 
+    def this(partner: Partner) = this(new PartnerPublic(partner), null, List(), List(), List())
 }
 

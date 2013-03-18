@@ -110,13 +110,10 @@ class EchoedUserService(
         case _: Throwable ⇒ Stop
     }
 
-    private def getStats = {
-        var stats = List[Map[String, Any]]()
-        stats = Map("name" -> "Sites Followed", "value" -> followingPartners.length,  "path" -> "following/partners") :: stats
-        stats = Map("name" -> "Following",      "value" -> followingUsers.length,     "path" -> "following") :: stats
-        stats = Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers") :: stats
-        stats
-    }
+    private def getStats = List(
+        Map("name" -> "Sites Followed", "value" -> followingPartners.length,  "path" -> "following/partners"),
+        Map("name" -> "Following",      "value" -> followingUsers.length,     "path" -> "following"),
+        Map("name" -> "Followers",      "value" -> followedByUsers.length,    "path" -> "followers"))
 
 
     private def createCode(password: String) =
@@ -354,62 +351,60 @@ class EchoedUserService(
             becomeContentLoaded
 
 
-        case msg @ RequestOwnContent(_, page, _type) =>
-            if(!contentLoaded) {
-                stash()
-                getContent
-            } else {
-                val content = privateContentManager.getContent(_type, page)
-                val stats = getStats ::: privateContentManager.getStats
-                val cf = new Feed(
-                            new SelfContext(
-                                echoedUser,
-                                _type,
-                                stats,
-                                privateContentManager.getHighlights,
-                                privateContentManager.getContentList
-                            ),
-                            content._1,
-                            content._2)
-                sender ! RequestOwnContentResponse(msg, Right(cf))
-            }
+        case msg @ RequestOwnContent(_, contentType, page) if(!contentLoaded) =>
+            stash()
+            getContent
 
-        case msg @ RequestCustomUserFeed(_, page, _type) =>
-            if(!customContentLoaded){
-                stash()
-                getCustomFeed
-            } else {
-                val content = followingContentManager.getContent(_type, page)
-                val sf = new Feed(
-                            new PersonalizedContext(
-                                _type,
-                                followingContentManager.getStats,
-                                followingContentManager.getHighlights,
-                                followingContentManager.getContentList
-                            ),
-                            content._1,
-                            content._2)
-                sender ! RequestCustomUserFeedResponse(msg, Right(sf))
-            }
+        case msg @ RequestOwnContent(_, contentType, page) =>
+            val content = privateContentManager.getContent(contentType, page)
+            val stats = getStats ::: privateContentManager.getStats
+            val cf = new Feed(
+                        new SelfContext(
+                            echoedUser,
+                            contentType,
+                            stats,
+                            content.highlights,
+                            privateContentManager.getContentList
+                        ),
+                        content.content,
+                        content.nextPage)
+            sender ! RequestOwnContentResponse(msg, Right(cf))
+
+        case msg @ RequestCustomUserFeed(_, contentType, page) if(!customContentLoaded) =>
+            stash()
+            getCustomFeed
+
+        case msg @ RequestCustomUserFeed(_, contentType, page) =>
+            val content = followingContentManager.getContent(contentType, page)
+            val sf = new Feed(
+                        new PersonalizedContext(
+                            contentType,
+                            followingContentManager.getStats,
+                            content.highlights,
+                            followingContentManager.getContentList
+                        ),
+                        content.content,
+                        content.nextPage)
+            sender ! RequestCustomUserFeedResponse(msg, Right(sf))
+
+
+        case msg: ReadAllUserContent if(!contentLoaded) =>
+            stash()
+            getContent
 
         case msg: ReadAllUserContent =>
-            if(!contentLoaded) {
-                stash()
-                getContent
-            } else {
-                val content = publicContentManager.getAllContent
-                sender ! ReadAllUserContentResponse(msg, Right(content))
-            }
+            sender ! ReadAllUserContentResponse(msg, Right(publicContentManager.getAllContent))
 
-        case msg @ RequestUserContentFeed(eucc, page, _type) =>
-            if(!contentLoaded) {
-                stash()
-                getContent
-            } else {
-                val content =   publicContentManager.getContent(_type, page)
-                val sf =        new Feed(userContext(_type), content._1, content._2)
-                sender ! RequestUserContentFeedResponse(msg, Right(sf))
-            }
+
+        case msg @ RequestUserContentFeed(eucc, contentType, page) if(!contentLoaded) =>
+            stash()
+            getContent
+
+        case msg @ RequestUserContentFeed(eucc, contentType, page) =>
+            val content =   publicContentManager.getContent(contentType, page)
+            val sf =        new Feed(userContext(contentType), content.content, content.nextPage)
+            sender ! RequestUserContentFeedResponse(msg, Right(sf))
+
 
         case Terminated(ref) => activeStories.values.removeAll(activeStories.values.filter(_ == ref))
 
