@@ -6,6 +6,7 @@ case class PhotoContent(image: Image, originalContent: Content) extends Content 
 
     val contentType = "Photo"
     val id = image.id
+    override val contentPath = originalContent.contentPath
 
     def title = null
     def createdOn = image.createdOn

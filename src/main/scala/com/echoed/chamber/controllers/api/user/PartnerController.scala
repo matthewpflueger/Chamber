@@ -43,17 +43,16 @@ import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryS
 @RequestMapping(Array("/api/partner"))
 class PartnerController extends EchoedController {
 
-    private val failAsZero = failAsValue(classOf[NFE])(0)
-    private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
-
     @RequestMapping(value = Array("/{partnerId}"), method=Array(RequestMethod.GET))
     @ResponseBody
     def getPartnerContentStories(
             @PathVariable(value = "partnerId") partnerId: String,
-            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "contentPath", required = false) contentPath: String,
+            @RequestParam(value = "startsWith", required = false, defaultValue = "false") startsWith: Boolean,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        getPartnerContent(Content.defaultContentDescription, partnerId, page, origin)
+        getPartnerContent(Content.defaultContentDescription, partnerId, contentPath, startsWith, page, origin)
     }
 
     @RequestMapping(value = Array("/{partnerId}/{contentType}"), method=Array(RequestMethod.GET))
@@ -61,23 +60,33 @@ class PartnerController extends EchoedController {
     def getPartnerContentOther(
             @PathVariable(value = "partnerId") partnerId: String,
             @PathVariable(value = "contentType") contentType: String,
-            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "contentPath", required = false) contentPath: String,
+            @RequestParam(value = "startsWith", required = false, defaultValue = "false") startsWith: Boolean,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        getPartnerContent(Content.getContentDescription(contentType), partnerId, page, origin)
+        getPartnerContent(Content.getContentDescription(contentType), partnerId, contentPath, startsWith, page, origin)
     }
 
     def getPartnerContent(
             contentType:    ContentDescription,
             partnerId:      String,
-            page:           String,
+            contentPath:    String,
+            startsWith:     Boolean,
+            page:           Int,
             origin:         String) = {
 
         val result = new DeferredResult[Feed[PartnerContext]](null, ErrorResult.timeout)
 
         log.debug("Requesting for Partner Content for Partner {}", partnerId )
 
-        mp(RequestPartnerContent(new PartnerClientCredentials(partnerId), parse(page), origin, contentType)).onSuccess {
+        mp(RequestPartnerContent(
+                new PartnerClientCredentials(partnerId),
+                origin,
+                contentType,
+                Option(contentPath),
+                Option(startsWith),
+                Option(page))).onSuccess {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result

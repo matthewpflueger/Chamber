@@ -36,7 +36,7 @@ private[services] case class RequestTopicStoryFeedResponse(
             message: RequestTopicStoryFeed,
             value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestTopicStoryFeed, FE]
 
-case class RequestPublicContent(contentType: ContentDescription, page: Int) extends FM
+case class RequestPublicContent(contentType: ContentDescription, page: Option[Int]) extends FM
 case class RequestPublicContentResponse(
             message: RequestPublicContent,
             value: Either[FE, Feed[PublicContext]]) extends FM with MR[Feed[PublicContext], RequestPublicContent, FE]

@@ -1,7 +1,6 @@
 package com.echoed.util.datastructure
 
 import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
-import com.echoed.chamber.domain.Story
 import collection.immutable.TreeMap
 
 class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
@@ -26,65 +25,41 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription]) {
                 tree
             }
 
-    def deleteContent(c: Content): Unit =
-            cache.get(c.contentDescription).foreach(_.deleteContent(c))
+    def deleteContent(c: Content): Unit = cache.get(c.contentDescription).foreach(_.deleteContent(c))
 
-    def updateContent(c: Content) {
-        val tree = initContentTree(c.contentDescription)
-        tree.updateContent(c)
+    def updateContent(c: Content): Unit = initContentTree(c.contentDescription).updateContent(c)
+
+    def getContentList = cache.values.map(_.getInfoMap).toList
+
+    def getContent(
+            c: ContentDescription,
+            page: Option[Int] = Some(0),
+            contentPath: Option[String] = None,
+            startsWith: Option[Boolean] = Some(false)) = {
+        cache.get(c).map(_.getContentFromTree(contentPath, startsWith, page)).getOrElse(ContentTreeContext())
     }
 
-    def getContentList = {
-        cache.values.map(_.getInfoMap).toList
-    }
+    def getAllContent = cache.values.foldLeft(List[Content]())((l, r) => r.getAllContentFromTree ::: l)
 
-    def getContent(c: ContentDescription, page: Int) = {
-        cache.get(c).map(_.getContentFromTree(page)).getOrElse((List[Content](), null))
-    }
+    def getTotalViewCount = cache.values.foldLeft(0)((l, r) => l + r.viewCount)
 
-    def getAllContent = {
-        cache.values.foldLeft(List[Content]())((l, r) => r.getAllContentFromTree ::: l)
-    }
+    def getTotalCommentCount = cache.values.foldLeft(0)((l, r) => l + r.commentCount)
 
-    def getTotalViewCount = {
-        cache.values.foldLeft(0)((l, r) => l + r.viewCount)
-    }
+    def getTotalVoteCount = cache.values.foldLeft(0)((l, r) => l + r.voteCount)
 
-    def getTotalCommentCount = {
-        cache.values.foldLeft(0)((l, r) => l + r.commentCount)
-    }
+    def getHighlights = List(
+            Map("name" -> "Highest Rated", "value" -> getMostVoted(Content.storyContentDescription)),
+            Map("name" -> "Most Discussed", "value" -> getMostCommented(Content.storyContentDescription)),
+            Map("name" -> "Most Viewed", "value" -> getMostViewed(Content.storyContentDescription)))
 
-    def getTotalVoteCount = {
-        cache.values.foldLeft(0)((l, r) => l + r.voteCount)
-    }
+    def getStats = List(
+            Map("name" -> "Votes", "value" -> getTotalVoteCount),
+            Map("name" -> "Comments", "value" -> getTotalCommentCount),
+            Map("name" -> "Views", "value" -> getTotalViewCount))
 
-    def getHighlights = {
-        var s = List[Map[String, Any]]()
-        s = Map("name" -> "Highest Rated", "value" -> getMostVoted(Content.storyContentDescription)) :: s
-        s = Map("name" -> "Most Discussed", "value" -> getMostCommented(Content.storyContentDescription)) :: s
-        s = Map("name" -> "Most Viewed", "value" -> getMostViewed(Content.storyContentDescription)) :: s
-        s
-    }
+    def getMostViewed(c: ContentDescription) = cache.get(c).map(_.mostViewed)
 
-    def getStats = {
-        var s = List[Map[String, Any]]()
-        s = Map("name" -> "Votes", "value" -> getTotalVoteCount) :: s
-        s = Map("name" -> "Comments", "value" -> getTotalCommentCount) :: s
-        s = Map("name" -> "Views", "value" -> getTotalViewCount) :: s
-        s
-    }
+    def getMostCommented(c: ContentDescription) = cache.get(c).map(_.mostCommented)
 
-    def getMostViewed( c: ContentDescription ) = {
-        cache.get(c).map(_.mostViewed).getOrElse(null)
-    }
-
-    def getMostCommented( c: ContentDescription) = {
-        cache.get(c).map(_.mostCommented).getOrElse(null)
-    }
-
-    def getMostVoted( c: ContentDescription ) = {
-        cache.get(c).map(_.mostVoted).getOrElse(null)
-    }
-
-
+    def getMostVoted( c: ContentDescription ) = cache.get(c).map(_.mostVoted)
 }

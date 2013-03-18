@@ -10,6 +10,7 @@ trait Content extends FeedItem {
     def numComments:   Int
 
     def contentDescription = Content.getContentDescription(contentType)
+    def contentPath:  Option[String] = None
 }
 
 object Content {

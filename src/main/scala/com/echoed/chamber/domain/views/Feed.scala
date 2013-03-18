@@ -6,6 +6,6 @@ import context.Context
 case class Feed[C <: Context](
     context:    C,
     content:    List[FeedItem],
-    nextPage:   String) {
+    nextPage:   Option[Int]) {
 
 }

@@ -22,15 +22,11 @@ import com.echoed.chamber.services.echoeduser.RequestUserContentFeed
 @RequestMapping(Array("/api/user"))
 class UserController extends EchoedController {
 
-
-    private val failAsZero = failAsValue(classOf[NFE])(0)
-    private def parse(number: String) =  failAsZero { Integer.parseInt(number) }
-
     @RequestMapping(value = Array("/{id}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getUserDefaultContent(
                     @PathVariable(value ="id") id: String,
-                    @RequestParam(value = "page", required = false) page: String,
+                    @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
                     @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
         getUserContent(id, Content.defaultContentDescription, page, origin)
 
@@ -39,20 +35,20 @@ class UserController extends EchoedController {
     def getUserOtherContent(
             @PathVariable(value ="id") id: String,
             @PathVariable(value = "contentType") contentType: String,
-            @RequestParam(value = "page", required = false) page: String,
+            @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
         getUserContent(id, Content.getContentDescription(contentType), page, origin)
 
 
-    def getUserContent(id: String, contentDescription: ContentDescription, page: String, origin: String) = {
+    def getUserContent(id: String, contentDescription: ContentDescription, page: Int, origin: String) = {
         log.debug("Getting feed for {}", id)
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)
 
         mp(RequestUserContentFeed(
                 new EchoedUserClientCredentials(id),
-                parse(page),
-                contentDescription)).onSuccess {
+                contentDescription,
+                Option(page))).onSuccess {
             case RequestUserContentFeedResponse(_, Right(feed)) => result.setResult(feed)
         }
 
