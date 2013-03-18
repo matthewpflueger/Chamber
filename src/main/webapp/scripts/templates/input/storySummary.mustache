@@ -14,14 +14,18 @@
                                 {{#context}}{{partner.name}}{{/context}}
                             </div>
                         </div>
+                        {{#context}}
+                        {{#pageTitle}}
                         <div class="story-detail-row clearfix">
                             <div class="story-input-label">
                                 Page
                             </div>
                             <div class="story-input-content">
-                                {{#context}}{{pageTitle}}{{/context}}
+                                {{pageTitle}}
                             </div>
                         </div>
+                        {{/pageTitle}}
+                        {{/context}}
                     </div>
                 </div>
                 <div id="story-summary-buttons">

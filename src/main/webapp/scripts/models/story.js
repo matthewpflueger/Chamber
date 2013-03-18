@@ -194,9 +194,23 @@ define(
                 });
                 this.set("chapters", chapters);
                 this.set("chapterImages", newImages);
+                this.set("isNew", false);
             },
             isIncomplete: function(){
                 return this.get("chapters").length == 0
+            },
+            getTitle: function(){
+                var title = this.get("story").title;
+                if(title){
+                    return title;
+                } else {
+                    var chapter = this.get("chapters")[0];
+                    if(chapter.title){
+                        return chapter.title;
+                    } else {
+                        return chapter.text;
+                    }
+                }
             },
             getImageCount: function(){
                 return 0;

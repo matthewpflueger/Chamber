@@ -147,6 +147,7 @@ define(
                 var self = this;
                 var view = {
                     story:              this.modelStory.toJSON(),
+                    contentTitle:       this.modelStory.getTitle(),
                     profilePhotoUrl:    utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget:           this.properties.isWidget,
                     isMine:             this.modelUser.is(this.modelStory.get("echoedUser").id),

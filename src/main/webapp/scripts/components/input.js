@@ -92,8 +92,6 @@
                 loadData["contentPath"] = this.modelContext.getPage();
                 loadData["contentType"] = this.modelContext.getContentTypeSinguilar();
 
-                console.log(loadData);
-
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
                         loadData: loadData,
@@ -127,10 +125,8 @@
                 if(this.modelStory.get("isNew")){
                     self.loadChapterInputTemplate({});
                 } else if(this.modelStory.get("chapters").length > 0){
-                    self.loadStoryCoverTemplate();
                     self.loadChapterTemplates();
                 } else {
-                    self.loadStoryCoverTemplate();
                     self.loadChapterInputTemplate({});
                 }
                 self.show();
@@ -357,7 +353,8 @@
                }
             },
             addChapterClick: function(){
-                this.loadChapterInputTemplate({});
+//                this.loadChapterInputTemplate({});
+                this.close();
             },
             publishChapterClick: function(){
                 this.updateChapter(true);
