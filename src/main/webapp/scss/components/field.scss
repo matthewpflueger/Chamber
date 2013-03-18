@@ -267,6 +267,9 @@
             background-color: #333;
             color: #FFF;
         }
+        &.subtit{
+            background-image: image-url('bk_title_pad.png');
+        }
         &.photos{
             background-image: image-url('bk_photos_pad.png');
         }
