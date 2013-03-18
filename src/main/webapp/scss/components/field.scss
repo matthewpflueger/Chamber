@@ -260,6 +260,11 @@
         border-right: 1px solid #CCC;
         box-shadow: 1px 0px #FFF;
         cursor: pointer;
+        &:first-child {
+            border-left:    1px solid #FFF;
+
+        }
+
         &:hover{
             background-color: #FFF;
         }
