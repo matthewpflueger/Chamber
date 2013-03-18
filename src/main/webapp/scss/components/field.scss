@@ -50,7 +50,7 @@
     }
 
     .story-summary {
-        margin: 0 10px 10px 10px;
+        //margin: 0 10px 10px 10px;
         padding: 10px;
         #story-hide {
                 position: absolute;
@@ -60,12 +60,12 @@
 }
 
 .field-main-row{
-    border: 1px solid #CCC;
-    padding: 10px;
+    //border: 1px solid #CCC;
+    //padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
     &.highlight{
-        border-color: $colorEC;
+        //border-color: $colorEC;
     }
 
 }
@@ -122,7 +122,7 @@
   }
 }
 .field-submit{
-    @include buttonRed();
+    @include buttonGreen();
 }
 
 .field-question-label{
@@ -236,7 +236,6 @@
 
 #input-add{
     padding: 10px;
-    border-bottom: 1px solid #CCC;
     ul{
         float:left;
         clear: left;
@@ -261,7 +260,7 @@
         box-shadow: 1px 0px #FFF;
         cursor: pointer;
         &:first-child {
-            border-left:    1px solid #FFF;
+            border-left:    1px solid #CCC;
 
         }
 

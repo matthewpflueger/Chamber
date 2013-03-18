@@ -431,7 +431,7 @@
                 });
             },
             cancelChapterClick: function(){
-                this.load();
+                this.close();
             },
             hideStoryClick: function() {
                 var v = confirm("Are you sure you want to hide this story?");
