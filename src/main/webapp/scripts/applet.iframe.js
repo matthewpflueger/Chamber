@@ -64,7 +64,13 @@ require(
                 isOverlay:  true
             };
 
-
+            if(Echoed.partnerId){
+                var hashUrl = "partner/" + Echoed.partnerId;
+                if(Echoed.path) {
+                    hashUrl += "/page/" + Echoed.path;
+                }
+                window.location.hash = hashUrl;
+            }
 
             //Options
             this.options = function(el){
@@ -78,17 +84,17 @@ require(
                 if(el) opt.el = el;
                 return opt;
             };
-            this.errorLog = new ErrorLog(this.options());
-            this.exhibit = new Exhibit(this.options('#exhibit'));
-            this.infiniteScroll = new InfiniteScroll(this.options('#infiniteScroll'));
-            this.nav = new Nav(this.options());
-            this.input = new Input(this.options('#field-container'));
-            this.item = new Item(this.options('#item-container'));
-            this.titleNav = new Title(this.options('#title-container'));
-            this.login = new Login(this.options("#login-container"));
-            this.page = new Page(this.options());
-            this.router = new Router(this.options());
-            this.header = new Header(this.options("#header-container"));
+            this.errorLog =         new ErrorLog(this.options());
+            this.exhibit =          new Exhibit(this.options('#exhibit'));
+            this.infiniteScroll =   new InfiniteScroll(this.options('#infiniteScroll'));
+            this.nav =              new Nav(this.options());
+            this.input =            new Input(this.options('#field-container'));
+            this.item =             new Item(this.options('#item-container'));
+            this.titleNav =         new Title(this.options('#title-container'));
+            this.login =            new Login(this.options("#login-container"));
+            this.page =             new Page(this.options());
+            this.router =           new Router(this.options());
+            this.header =           new Header(this.options("#header-container"));
 
             var iFrameNode = document.createElement('iframe');
 

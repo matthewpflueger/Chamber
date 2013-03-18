@@ -5,10 +5,10 @@
     {{#context}}
     <div id="title-header">
         <span id="title-text">
+            {{#pageTitle}}
+            {{pageTitle}}
+            {{/pageTitle}}
             {{ title }}
-            {{#page}}
-            {{page}}
-            {{/page}}
         </span>
         {{#isActionable}}
             {{#contentType}}

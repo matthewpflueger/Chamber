@@ -11,12 +11,15 @@ require(
 
         this.EventAggregator = _.extend({}, Backbone.Events);
 
-        var overlayUrl = Echoed.https.site + "/app/iframe";
+        var overlayUrl = Echoed.https.site + "/app/iframe?";
         if(Echoed.partnerId !== "") {
-            overlayUrl += "#partner/" + Echoed.partnerId;
-            if(Echoed.path !== "/") {
-                overlayUrl += "/page"+ Echoed.path;
-            }
+            overlayUrl += "partnerId=" + Echoed.partnerId;
+        }
+        if(Echoed.path !== "/") {
+            overlayUrl += "&path=" + encodeURIComponent(Echoed.path);
+        }
+        if(Echoed.title) {
+            overlayUrl += "&title=" + encodeURIComponent(Echoed.title);
         }
 
         this.properties = {

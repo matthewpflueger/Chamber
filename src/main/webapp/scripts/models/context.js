@@ -29,8 +29,9 @@ define(
                     return null;
                 }
             },
-            setPage: function(page){
+            setPage: function(page, title){
                 this.set("page", page);
+                this.set("pageTitle", title);
             },
             getPage: function(){
                 if(this.has("page")) {

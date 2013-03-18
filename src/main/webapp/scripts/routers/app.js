@@ -58,7 +58,11 @@ define(
                     this.page = page;
                     this.requestFeed(url, function(jsonUrl, data){
                         self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
-                        self.modelContext.setPage(path);
+                        if(Echoed.title) {
+                            self.modelContext.setPage(path, Echoed.title);
+                            Echoed.title = null;
+                            Echoed.path =  null;
+                        }
                     });
                 }
             },
@@ -95,7 +99,11 @@ define(
                 if(_.isEmpty(options.data.context)){
                     this.modelContext.clear();
                 } else {
+                    this.modelContext.clear();
+                    console.log(this.modelContext.toJSON());
                     this.modelContext.set(options.data.context);
+                    console.log(this.modelContext.toJSON());
+
                 }
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
