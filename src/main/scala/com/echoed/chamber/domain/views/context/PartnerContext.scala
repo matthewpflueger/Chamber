@@ -22,7 +22,7 @@ case class PartnerContext(
         contentType:    ContentDescription,
         stats:          List[Map[String, Any]],
         highlights:     List[Map[String, Any]],
-        content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), None, contentType, stats, highlights, content )
+        content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), page, contentType, stats, highlights, content )
 
     def this(partner: Partner) = this(new PartnerPublic(partner), None, null, List(), List(), List())
 }

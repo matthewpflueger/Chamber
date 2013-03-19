@@ -67,7 +67,7 @@ require(
             if(Echoed.partnerId){
                 var hashUrl = "partner/" + Echoed.partnerId;
                 if(Echoed.path) {
-                    hashUrl += "/page/" + Echoed.path;
+                    hashUrl += "/page" + Echoed.path;
                 }
                 window.location.hash = hashUrl;
             }
@@ -78,8 +78,8 @@ require(
                     properties:     this.properties,
                     modelUser:      this.modelUser,
                     modelContext:   this.modelContext,
-                    modelPartner:      this.modelPartner,
-                    EvAg: this.EventAggregator
+                    modelPartner:   this.modelPartner,
+                    EvAg:           this.EventAggregator
                 };
                 if(el) opt.el = el;
                 return opt;

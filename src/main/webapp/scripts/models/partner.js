@@ -12,8 +12,8 @@ define(
                 }
                 return false;
             },
-            setPath: function(){
-
+            setPath: function(path){
+                this.set("page", path);
             },
             getPartnerPath: function(){
                 var path = this.get('domain');

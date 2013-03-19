@@ -71,6 +71,7 @@ define(
                 });
                 if(view.context.contextType === "partner") {
                     this.modelPartner.set(view.context.partner);
+                    this.modelPartner.setPath(view.context.page);
                 } else {
                     this.modelPartner.set({
                         name:   "Echoed",

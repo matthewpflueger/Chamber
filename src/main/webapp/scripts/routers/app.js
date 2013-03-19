@@ -101,10 +101,8 @@ define(
                     this.modelContext.clear();
                 } else {
                     this.modelContext.clear();
-                    console.log(this.modelContext.toJSON());
+                    console.log(options.data.context);
                     this.modelContext.set(options.data.context);
-                    console.log(this.modelContext.toJSON());
-
                 }
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);
