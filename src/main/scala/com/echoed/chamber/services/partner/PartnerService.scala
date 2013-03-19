@@ -55,13 +55,14 @@ class PartnerService(
         }
     }
 
-    private def partnerContext(contentType: ContentDescription, content: ContentTreeContext) = {
+    private def partnerContext(contentType: ContentDescription, content: ContentTreeContext, page: Option[String] = None) = {
         new PartnerContext(
             partner,
+            page,
             contentType,
             getStats ::: contentManager.getStats,
             content.highlights,
-            contentManager.getContentList)
+            contentManager.getContentList(page, Some(false)))
     }
 
     private def getStats = {
@@ -198,7 +199,7 @@ class PartnerService(
         case msg @ RequestPartnerContent(_, origin, contentType, contentPath, startsWith, page) =>
             val content = contentManager.getContent(contentType, page, contentPath, startsWith)
             val sf = new Feed(
-                    partnerContext(contentType, content),
+                    partnerContext(contentType, content, contentPath),
                     content.content,
                     content.nextPage)
             sender ! RequestPartnerContentResponse(msg, Right(sf))

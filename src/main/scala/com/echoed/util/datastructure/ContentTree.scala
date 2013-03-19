@@ -16,8 +16,15 @@ case class ContentTree(c: ContentDescription) {
     }
 
 
-    def getInfoMap = {
-        Map("name" -> c.plural, "count" -> count, "endPoint" -> c.endPoint)
+    def getInfoMap(contentPath: Option[String] = None, startsWith: Option[Boolean] = Some(false)) = {
+        val everything = contentPath.filterNot(_.isEmpty).isEmpty
+        val contentCount = {
+            if (everything) count
+            else if (startsWith.getOrElse(false)) contentTree.values.filter(_.contentPath.exists(_.startsWith(contentPath.get))).toList.size
+            else contentTree.values.filter(_.contentPath == contentPath).toList.size
+        }
+
+        Map("name" -> c.plural, "count" -> contentCount, "endPoint" -> c.endPoint)
     }
 
     val pageSize = 30

@@ -155,6 +155,8 @@ define(
                     partnerLink:        "#partner/" + this.modelStory.get("partner").id
                 };
 
+                console.log(this.modelStory.toJSON().story);
+
                 var template = templateStory(view);
                 self.element.html(template);
 

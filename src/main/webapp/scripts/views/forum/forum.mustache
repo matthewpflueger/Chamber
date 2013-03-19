@@ -19,7 +19,10 @@
             {{comments.length}} Responses
         </span>
         <a href="#partner/{{partner.handle}}" class="forumPartner">
-            {{partner.name}}
+            ({{partner.name}})
+        </a>
+        <a href="#partner/{{partner.handle}}/page/{{story.contentPath}}" class="forumPage">
+            {{story.contentPageTitle}}
         </a>
     </div>
     {{/storyFull}}

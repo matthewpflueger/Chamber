@@ -6,6 +6,7 @@ import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
 
 case class PartnerContext(
     partner:        PartnerPublic,
+    page:           Option[String] = None,
     contentType:    ContentDescription,
     stats:          List[Map[String, Any]],
     highlights:     List[Map[String, Any]],
@@ -17,11 +18,12 @@ case class PartnerContext(
 
     def this(
         partner:        Partner,
+        page:           Option[String],
         contentType:    ContentDescription,
         stats:          List[Map[String, Any]],
         highlights:     List[Map[String, Any]],
-        content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), contentType, stats, highlights, content )
+        content:        List[Map[String, Any]]) = this(new PartnerPublic(partner), page, contentType, stats, highlights, content )
 
-    def this(partner: Partner) = this(new PartnerPublic(partner), null, List(), List(), List())
+    def this(partner: Partner) = this(new PartnerPublic(partner), None, null, List(), List(), List())
 }
 

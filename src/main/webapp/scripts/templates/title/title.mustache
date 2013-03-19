@@ -8,7 +8,9 @@
             {{#pageTitle}}
             {{pageTitle}}
             {{/pageTitle}}
+            {{^pageTitle}}
             {{ title }}
+            {{/pageTitle}}
         </span>
         {{#isActionable}}
             {{#contentType}}
@@ -53,7 +55,7 @@
     <div id="title-nav" class="clearfix">
         <ul>
             {{#c}}
-                <li {{#isActive}}class="selected"{{/isActive}} ><a href="#{{baseUrl}}{{endPoint}}">{{name}}: {{count}}</a></li>
+                <li {{#isActive}}class="selected"{{/isActive}} ><a href="#{{baseUrl}}{{endPoint}}{{#page}}/page/{{page}}{{/page}}">{{name}}: {{count}}</a></li>
             {{/c}}
         </ul>
     </div>
