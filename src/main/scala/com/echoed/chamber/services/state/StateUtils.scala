@@ -37,7 +37,6 @@ private[state] object StateUtils {
                 s.updatedOn,
                 s.createdOn,
                 s.title,
-                s.productInfo,
                 s.views,
                 s.community,
                 eu,
@@ -54,7 +53,8 @@ private[state] object StateUtils {
                 v,
                 t,
                 s.contentType,
-                s.contentPath)
+                s.contentPath,
+                s.contentPageTitle)
     }
 }
 

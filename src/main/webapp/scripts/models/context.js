@@ -33,6 +33,13 @@ define(
                 this.set("page", page);
                 this.set("pageTitle", title);
             },
+            getPageTitle: function(){
+                if(this.has("pageTitle")){
+                    return this.get("pageTitle");
+                } else {
+                    return null;
+                }
+            },
             getPage: function(){
                 if(this.has("page")) {
                     return this.get("page");

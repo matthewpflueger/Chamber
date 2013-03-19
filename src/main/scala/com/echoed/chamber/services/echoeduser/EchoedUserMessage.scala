@@ -197,7 +197,8 @@ case class InitStory(
         partnerId: Option[String] = None,
         topicId: Option[String] = None,
         contentType: Option[String] = None,
-        contentPath: Option[String] = None) extends EUM with EUI
+        contentPath: Option[String] = None,
+        contentPageTitle: Option[String] = None) extends EUM with EUI
 
 case class InitStoryResponse(message: InitStory, value: Either[EUE, StoryInfo])
         extends EUM with MR[StoryInfo, InitStory, EUE]

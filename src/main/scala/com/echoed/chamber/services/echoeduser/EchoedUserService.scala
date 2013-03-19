@@ -391,6 +391,7 @@ class EchoedUserService(
             stash()
             getContent
 
+
         case msg: ReadAllUserContent =>
             sender ! ReadAllUserContentResponse(msg, Right(publicContentManager.getAllContent))
 
@@ -672,9 +673,9 @@ class EchoedUserService(
             activeStories.put(StoryId(story.id), sender)
             Option(story.echoId).map(e => activeStories.put(EchoId(e), sender))
 
-        case msg @ InitStory(_, Some(storyId), _, _, _, _, _) => forwardToStory(msg, StoryId(storyId))
-        case msg @ InitStory(_, _, Some(echoId), _, _, _, _) => forwardToStory(msg, EchoId(echoId))
-        case msg @ InitStory(_, _, _, partnerId, _, _, _) => createStoryService(msg).forward(msg)
+        case msg @ InitStory(_, Some(storyId), _, _,  _, _, _, _) => forwardToStory(msg, StoryId(storyId))
+        case msg @ InitStory(_, _, Some(echoId), _, _,  _, _, _) => forwardToStory(msg, EchoId(echoId))
+        case msg @ InitStory(_, _, _, partnerId, _, _, _, _) => createStoryService(msg).forward(msg)
 
 
         case msg @ VoteStory(eucc, storyOwnerId, storyId, value) =>

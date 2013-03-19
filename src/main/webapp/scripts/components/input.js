@@ -91,6 +91,7 @@
                 loadData[this.type + "Id"] = this.id;
                 loadData["contentPath"] = this.modelContext.getPage();
                 loadData["contentType"] = this.modelContext.getContentTypeSinguilar();
+                loadData["contentPageTitle"] = this.modelContext.getPageTitle();
 
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
