@@ -22,33 +22,50 @@ define(
                 this.page = null;
             },
             routes:{
-                "_=_":                      "fix",
-                "!":                        "feed",
-                "":                         "feed",
-                "!story/:id":               "story",
-                "story/:id":                "story",
-                "!photo/:id":               "photo",
-                "photo/:id":                "photo",
-                "!write/:id" :              "write",
-                "!write":                   "write",
-                "write/:id" :               "write",
-                "write":                    "write",
-                "me/feed/:type":            "feed",
-                "me/feed/:type/":           "feed",
-                "explore":                  "explore",
-                "explore/:type":            "explore",
-                "!explore/:type":           "explore",
-                ":context/:id":             "content",
-                ":context/:id/":            "content",
-                ":context/:id/:type":       "content",
-                ":context/:id/:type/":      "content",
-                ":context/:id/:type/:type2":"content"
+                "_=_":                              "fix",
+                "!":                                "feed",
+                "":                                 "feed",
+                "!story/:id":                       "story",
+                "story/:id":                        "story",
+                "!photo/:id":                       "photo",
+                "photo/:id":                        "photo",
+                "!write/:id" :                      "write",
+                "!write":                           "write",
+                "write/:id" :                       "write",
+                "write":                            "write",
+                "me/feed/:type":                    "feed",
+                "me/feed/:type/":                   "feed",
+                "explore":                          "explore",
+                "explore/:type":                    "explore",
+                "!explore/:type":                   "explore",
+                "partner/:id/page/*path":           "partnerPage",
+                ":context/:id":                     "content",
+                ":context/:id/":                    "content",
+                ":context/:id(/:type)(/:type2)":    "content"
             },
             fix: function(){
                 window.location.href = "#";
             },
             change: function(){
                 this.feed();
+            },
+            partnerPage: function(id, path){
+                var self = this;
+                var url = "partner/" + id;
+                var page = url;
+                if(this.page !== page) {
+                    this.page = page;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
+                        if(Echoed.pageTitle) {
+                            self.modelContext.setPage(path, Echoed.pageTitle);
+                            Echoed.pageTitle = null;
+                            Echoed.path =  null;
+                        }
+                    }, {
+                        contentPath: path
+                    });
+                }
             },
             content: function(context, id, type, type2){
                 var self =      this;
@@ -64,7 +81,7 @@ define(
                     });
                 }
             },
-            requestFeed: function(endPoint, callback){
+            requestFeed: function(endPoint, callback, postData){
                 var self = this;
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
                 var timeStamp = new Date().getTime().toString();
@@ -73,6 +90,7 @@ define(
                 utils.AjaxFactory({
                     url: jsonUrl,
                     dataType: 'json',
+                    data: postData,
                     success: function(data){
                         self.EvAg.trigger('infiniteScroll/unlock');
                         if(self.currentRequest === timeStamp) callback(jsonUrl, data, timeStamp);
@@ -83,7 +101,11 @@ define(
                 if(_.isEmpty(options.data.context)){
                     this.modelContext.clear();
                 } else {
+                    this.modelContext.clear();
+                    console.log(this.modelContext.toJSON());
                     this.modelContext.set(options.data.context);
+                    console.log(this.modelContext.toJSON());
+
                 }
                 this.EvAg.trigger('exhibit/init', options);
                 this.EvAg.trigger('page/change', page);

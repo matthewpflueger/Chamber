@@ -18,8 +18,8 @@ object Content {
     val storyContentDescription =       new ContentDescription("Story", "Stories" , "stories", 2)
     val qaContentDescription =          new ContentDescription("Question", "Q & A", "questions", 3)
     val reviewContentDescription =      new ContentDescription("Review", "Reviews" , "reviews", 4)
-
-    val newsContentDescription =        new ContentDescription("News", "News", "news", 5)
+    val dealContentDescription =        new ContentDescription("Deal", "Deals", "deals", 5)
+    val newsContentDescription =        new ContentDescription("News", "News", "news", 6)
     val photoContentDescription =       new ContentDescription("Photo", "Photos", "photos", 10)
 
     val defaultContentDescriptions =    List(

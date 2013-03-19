@@ -36,6 +36,7 @@ class StoryController extends EchoedController {
             @RequestParam(value = "topicId", required = false) topicId: String,
             @RequestParam(value = "contentType", required = false) contentType: String,
             @RequestParam(value = "contentPath", required = false) contentPath: String,
+            @RequestParam(value = "contentPageTitle", required = false) contentPageTitle: String,
             eucc: EchoedUserClientCredentials) = {
 
         log.debug("Initializing story for {}", eucc.id)
@@ -49,7 +50,8 @@ class StoryController extends EchoedController {
                 Option(partnerId),
                 Option(topicId),
                 Option(contentType),
-                Option(contentPath))).onSuccess {
+                Option(contentPath),
+                Option(contentPageTitle))).onSuccess {
             case InitStoryResponse(_, Right(storyInfo)) =>
                 log.debug("Successfully initialized story for {}", eucc)
                 result.setResult(storyInfo)

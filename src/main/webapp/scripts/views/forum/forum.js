@@ -39,7 +39,8 @@ define(
                 var view = {
                     profilePhotoUrl:    profilePhotoUrl,
                     storyFull:          this.modelStory.toJSON(),
-                    chapterText:        chapterText
+                    chapterText:        chapterText,
+                    contentTitle:       this.modelStory.getTitle()
                 };
                 var template = templateForum(view);
 

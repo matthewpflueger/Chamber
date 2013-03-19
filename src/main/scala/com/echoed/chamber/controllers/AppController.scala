@@ -41,6 +41,7 @@ class AppController extends EchoedController {
             pcc: PartnerClientCredentials,
             @Nullable eucc: EchoedUserClientCredentials,
             @RequestParam(value = "path") path: String,
+            @RequestParam(value = "title") title: String,
             @RequestHeader("User-Agent") userAgent: String) = {
 
         val result = new DeferredResult[ModelAndView](null, new ModelAndView(v.errorView))
@@ -51,6 +52,7 @@ class AppController extends EchoedController {
                     modelAndView.addObject("partnerId", pcc.partnerId)
                     modelAndView.addObject("partner", p.partner)
                     modelAndView.addObject("path", path)
+                    modelAndView.addObject("pageTitle", title)
                     modelAndView.addObject("echoedUserId", Option(eucc).map(_.id).getOrElse(""))
                     modelAndView.addObject("customization", p.customization)
                     result.setResult(modelAndView)
@@ -61,9 +63,16 @@ class AppController extends EchoedController {
     }
 
     @RequestMapping(value = Array("/iframe"), method = Array(RequestMethod.GET))
-    def appIframe(@Nullable eucc: EchoedUserClientCredentials) = {
+    def appIframe(
+                @Nullable eucc: EchoedUserClientCredentials,
+                @RequestParam(value = "partnerId", required = false) partnerId: String,
+                @RequestParam(value = "path", required = false) path: String,
+                @RequestParam(value = "title", required = false) title: String) = {
         val modelAndView = new ModelAndView(v.appIFrameView)
-        modelAndView.addObject("echoedUser", eucc)
+        modelAndView.addObject("echoedUser",    eucc)
+        modelAndView.addObject("partnerId",     partnerId)
+        modelAndView.addObject("path",          path)
+        modelAndView.addObject("pageTitle",     title)
         modelAndView
     }
 }

@@ -50,7 +50,7 @@
     }
 
     .story-summary {
-        margin: 0 10px 10px 10px;
+        //margin: 0 10px 10px 10px;
         padding: 10px;
         #story-hide {
                 position: absolute;
@@ -60,12 +60,12 @@
 }
 
 .field-main-row{
-    border: 1px solid #CCC;
-    padding: 10px;
+    //border: 1px solid #CCC;
+    //padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
     &.highlight{
-        border-color: $colorEC;
+        //border-color: $colorEC;
     }
 
 }
@@ -122,7 +122,7 @@
   }
 }
 .field-submit{
-    @include buttonRed();
+    @include buttonGreen();
 }
 
 .field-question-label{
@@ -148,8 +148,7 @@
         padding-right: 10px;
     }
     .story-input-content{
-
-        @include fontText(13px);
+        @include fontText(14px);
     }
 
 }
@@ -236,7 +235,6 @@
 
 #input-add{
     padding: 10px;
-    border-bottom: 1px solid #CCC;
     ul{
         float:left;
         clear: left;
@@ -260,12 +258,20 @@
         border-right: 1px solid #CCC;
         box-shadow: 1px 0px #FFF;
         cursor: pointer;
+        &:first-child {
+            border-left:    1px solid #CCC;
+
+        }
+
         &:hover{
             background-color: #FFF;
         }
         &.on{
             background-color: #333;
             color: #FFF;
+        }
+        &.subtit{
+            background-image: image-url('bk_title_pad.png');
         }
         &.photos{
             background-image: image-url('bk_photos_pad.png');

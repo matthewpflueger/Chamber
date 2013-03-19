@@ -55,14 +55,6 @@ import state._
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import org.openqa.selenium.{OutputType, TakesScreenshot, WebDriver}
 import org.openqa.selenium.firefox.{FirefoxBinary, FirefoxDriver}
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.mime.{HttpMultipartMode, MultipartEntity}
-import org.apache.http.entity.mime.content.{FileBody, StringBody}
-import scala.io.Source
-import scala.util.Try
-import java.util.concurrent.TimeUnit
-import java.io.File
 import com.echoed.chamber.services.image.{CaptureResponse, Capture}
 
 
@@ -87,16 +79,16 @@ class StoryService(
     override def preStart() {
         super.preStart()
         initMessage match {
-            case msg @ InitStory(_, Some(storyId), _, _, _, _, _) => readStory(storyId)
-            case msg @ InitStory(_, _, Some(echoId), _, _, _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
-            case msg @ InitStory(_, _, _, partnerId, topicId, _, _) => requestStory(partnerId, topicId)
+            case msg @ InitStory(_, Some(storyId), _, _, _, _, _, _) => readStory(storyId)
+            case msg @ InitStory(_, _, Some(echoId), _, _, _, _, _) => mp.tell(ReadStoryForEcho(echoId, echoedUser.id), self)
+            case msg @ InitStory(_, _, _, partnerId, topicId, _, _, _) => requestStory(partnerId, topicId)
             case msg: StoryIdentifiable => readStory(msg.storyId)
         }
     }
 
     private def initStory(s: StoryState) {
         storyState = initMessage match {
-            case InitStory(_, _, _, _, _, ct, cp) => s.trySetContentTypeAndPath(ct, cp)
+            case InitStory(_, _, _, _, _, ct, cp, cpt) => s.trySetContentTypeAndPath(ct, cp, cpt)
             case _ => s
         }
         context.parent ! RegisterStory(storyState.asStory)
@@ -146,7 +138,6 @@ class StoryService(
                     imageId = image.map(_.id).orNull,
                     image = image,
                     community = community,
-                    productInfo = productInfo.orNull,
                     updatedOn = new Date)
             ep(StoryUpdated(storyState))
             sender ! UpdateStoryResponse(msg, Right(storyState.asStory))

@@ -11,7 +11,18 @@ define(
                     }
                 }
                 return false;
+            },
+            setPath: function(){
+
+            },
+            getPartnerPath: function(){
+                var path = this.get('domain');
+                if(this.has("page")){
+                    path += "/" + this.get("page");
+                }
+                return path;
             }
+
         });
     }
 )

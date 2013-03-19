@@ -42,6 +42,7 @@ define(
                             self.parseHash();
                             window.onhashchange = self.parseHash;
                         }
+                        self.htmlEl.css({ "overflow" : "hidden" });
                     },
                     onMessage: function(message, origin){
                         self.handleMessage(message, origin);

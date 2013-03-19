@@ -146,11 +146,13 @@ define(
             render: function(){
                 var self = this;
                 var view = {
-                    story: this.modelStory.toJSON(),
-                    profilePhotoUrl: utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
-                    isWidget: this.properties.isWidget,
-                    isMine: this.modelUser.is(this.modelStory.get("echoedUser").id),
-                    userLink: "#user/" + this.modelStory.get("echoedUser").id
+                    story:              this.modelStory.toJSON(),
+                    contentTitle:       this.modelStory.getTitle(),
+                    profilePhotoUrl:    utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
+                    isWidget:           this.properties.isWidget,
+                    isMine:             this.modelUser.is(this.modelStory.get("echoedUser").id),
+                    userLink:           "#user/" + this.modelStory.get("echoedUser").id,
+                    partnerLink:        "#partner/" + this.modelStory.get("partner").id
                 };
 
                 var template = templateStory(view);
@@ -177,6 +179,9 @@ define(
                 self.story.css({ "margin-left": -(self.story.width() / 2) });
                 self.element.fadeIn();
                 $("body").addClass("noScroll");
+
+                var partner = this.modelStory.get("partner");
+                partner.page = this.modelStory.get("contentPath");
                 this.modelPartner.set(this.modelStory.get("partner"));
             },
             renderGalleryNav: function(){

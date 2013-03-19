@@ -5,6 +5,9 @@ $colorTW:           #4099FF; //Twitter Color
 $colorGreen:        #7ee379;
 $colorGreenDark:    #55a155;
 
+$colorGreen:        #4de360;
+$colorGreenDark:    #287d29;
+
 //DEFAULT FONT SETTINGS
 $fontTextFamily:    'Open Sans', sans-serif;
 $fontTitleFamily:   'Lato', sans-serif;
@@ -175,6 +178,21 @@ $fontTextColorDefault:  #333;
     @include            button;
     @include            fontTextBold( $size, #FFF );
     @include            verticalGradient( $colorEC, $colorECDark);
+    text-shadow:        0px -1px #000;
+    border:             1px solid #666;
+    &:hover{
+        border-color:       #CCC;
+    }
+    &:active{
+        text-shadow:        none;
+        border-color:       transparent;
+    }
+}
+
+@mixin buttonGreen( $size: 12px ) {
+    @include            button;
+    @include            fontTextBold( $size, #FFF );
+    @include            verticalGradient( $colorGreen, $colorGreenDark);
     text-shadow:        0px -1px #000;
     border:             1px solid #666;
     &:hover{

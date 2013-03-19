@@ -31,7 +31,6 @@ class PublicController extends EchoedController {
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int) =
         getPublicContent(Content.getContentDescription(contentType), page)
 
-
     def getPublicContent(contentType: ContentDescription, page: Int) = {
         val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
 

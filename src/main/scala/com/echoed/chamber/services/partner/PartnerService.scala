@@ -203,6 +203,21 @@ class PartnerService(
                     content.nextPage)
             sender ! RequestPartnerContentResponse(msg, Right(sf))
 
+        case msg @ RequestPartnerDefaultContent(_, page, origin) =>
+            if(!contentLoaded) {
+                stash()
+                getContent
+            } else {
+                val content =   contentManager.getDefaultContent(page)
+                val _type =     contentManager.getDefaultContentType
+                val sf =        new Feed(
+                                    partnerContext(_type, content),
+                                    content.content,
+                                    content.nextPage)
+                sender ! RequestPartnerDefaultContentResponse(msg, Right(sf))
+            }
+
+
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(
                         new PartnerContext(partner),

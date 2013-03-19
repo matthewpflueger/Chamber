@@ -44,8 +44,7 @@ define(
                 }
             },
             pageChange: function(){
-                var partner = this.modelPartner.toJSON();
-                this.sendMessage("contextChange", partner.domain);
+                this.sendMessage("contextChange", this.modelPartner.getPartnerPath());
             },
             sendMessage: function(type, data){
                 this.socket.postMessage(JSON.stringify({ type: type, data: data}));

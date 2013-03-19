@@ -13,7 +13,6 @@ case class StoryState(
         updatedOn: Long,
         createdOn: Long,
         title: Option[String],
-        productInfo: String,
         views: Int,
         community: String,
         echoedUser: EchoedUser,
@@ -30,7 +29,8 @@ case class StoryState(
         votes: Map[String, Vote],
         topic: Option[Topic],
         contentType: String,
-        contentPath: Option[String]) extends DomainObject {
+        contentPath: Option[String],
+        contentPageTitle: Option[String]) extends DomainObject {
 
     def this(
             eu: EchoedUser,
@@ -41,12 +41,12 @@ case class StoryState(
             topic: Option[Topic] = None,
             community: Option[String] = None,
             contentType: String = "Story",
-            contentPath: Option[String] = None) = this(
+            contentPath: Option[String] = None,
+            contentPageTitle: Option[String] = None) = this(
         UUID(),
         0L,
         0L,
         None,
-        null,
         0,
         community.getOrElse(p.category),
         eu,
@@ -63,7 +63,8 @@ case class StoryState(
         Map.empty[String, Vote],
         topic,
         contentType,
-        contentPath)
+        contentPath,
+        contentPageTitle)
 
     def isCreated = createdOn > 0
     def create(
@@ -72,12 +73,12 @@ case class StoryState(
             community: String,
             image: Option[Image],
             contentType: Option[String] = None,
-            contentPath: Option[String] = None) = {
-        val storyState = trySetContentTypeAndPath(contentType, contentPath).copy(
+            contentPath: Option[String] = None,
+            contentPageTitle: Option[String] = None) = {
+        val storyState = trySetContentTypeAndPath(contentType, contentPath, contentPageTitle).copy(
             updatedOn = new Date,
             createdOn = new Date,
             title = title,
-            productInfo = productInfo,
             community = community,
             imageId = image.map(_.id).orNull,
             image = image)
@@ -85,9 +86,10 @@ case class StoryState(
         else storyState
     }
 
-    def trySetContentTypeAndPath(ct: Option[String], cp: Option[String]) = copy(
+    def trySetContentTypeAndPath(ct: Option[String], cp: Option[String], cpt: Option[String]) = copy(
             contentType = ct.getOrElse(this.contentType),
-            contentPath = cp.orElse(this.contentPath))
+            contentPath = cp.orElse(this.contentPath),
+            contentPageTitle = cpt.orElse(this.contentPageTitle))
 
     def asStory = Story(
             id,
@@ -102,7 +104,7 @@ case class StoryState(
             extractTitle,
             echo.map(_.id).orNull,
             echo.map(_.productId).orNull,
-            productInfo,
+            null,
             views,
             numComments,
             upVotes,
@@ -110,7 +112,8 @@ case class StoryState(
             community,
             topic.map(_.id).orNull,
             contentType,
-            contentPath)
+            contentPath,
+            contentPageTitle)
 
     def asStoryInfo = StoryInfo(
             echoedUser,

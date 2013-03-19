@@ -89,6 +89,10 @@
                 var self = this;
                 var loadData = {};
                 loadData[this.type + "Id"] = this.id;
+                loadData["contentPath"] = this.modelContext.getPage();
+                loadData["contentType"] = this.modelContext.getContentTypeSinguilar();
+                loadData["contentPageTitle"] = this.modelContext.getPageTitle();
+
                 if(this.modelUser.isLoggedIn()){
                     this.modelStory = new ModelStory(null, {
                         loadData: loadData,
@@ -122,10 +126,8 @@
                 if(this.modelStory.get("isNew")){
                     self.loadChapterInputTemplate({});
                 } else if(this.modelStory.get("chapters").length > 0){
-                    self.loadStoryCoverTemplate();
                     self.loadChapterTemplates();
                 } else {
-                    self.loadStoryCoverTemplate();
                     self.loadChapterInputTemplate({});
                 }
                 self.show();
@@ -352,7 +354,8 @@
                }
             },
             addChapterClick: function(){
-                this.loadChapterInputTemplate({});
+//                this.loadChapterInputTemplate({});
+                this.close();
             },
             publishChapterClick: function(){
                 this.updateChapter(true);
@@ -426,7 +429,7 @@
                 });
             },
             cancelChapterClick: function(){
-                this.load();
+                this.close();
             },
             hideStoryClick: function() {
                 var v = confirm("Are you sure you want to hide this story?");

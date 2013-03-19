@@ -21,6 +21,31 @@ define(
                 } else {
                     return null;
                 }
+            },
+            getContentTypeSinguilar: function(){
+                if(this.has("contentType")) {
+                    return this.get("contentType").singular;
+                } else {
+                    return null;
+                }
+            },
+            setPage: function(page, title){
+                this.set("page", page);
+                this.set("pageTitle", title);
+            },
+            getPageTitle: function(){
+                if(this.has("pageTitle")){
+                    return this.get("pageTitle");
+                } else {
+                    return null;
+                }
+            },
+            getPage: function(){
+                if(this.has("page")) {
+                    return this.get("page");
+                } else {
+                    return null;
+                }
             }
         })
     }

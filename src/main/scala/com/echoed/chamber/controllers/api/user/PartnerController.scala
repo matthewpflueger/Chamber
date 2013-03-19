@@ -14,6 +14,21 @@ import com.echoed.chamber.services.partneruser._
 import scala.beans.BeanProperty
 import java.util.Date
 import com.echoed.util.ScalaObjectMapper
+import com.echoed.chamber.services.partner._
+import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
+import com.echoed.chamber.services.echoeduser.FollowPartner
+import com.echoed.chamber.services.echoeduser.UnFollowPartnerResponse
+import com.echoed.chamber.services.echoeduser.UnFollowPartner
+import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
+import com.echoed.chamber.domain.Topic
+import com.echoed.chamber.services.partneruser.UpdatePartnerCustomization
+import com.echoed.chamber.domain.views.Feed
+import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
+import com.echoed.chamber.services.partneruser.GetPartnerSettings
+import com.echoed.chamber.services.echoeduser.FollowPartnerResponse
+import com.echoed.chamber.services.echoeduser.PartnerFollower
+import com.echoed.chamber.domain.views.context.PartnerContext
+import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryStoriesForPartner}
 import com.echoed.chamber.services.partner.PutTopic
 import com.echoed.chamber.services.partneruser.GetPartnerSettingsResponse
 import com.echoed.chamber.services.echoeduser.FollowPartner
@@ -24,19 +39,23 @@ import com.echoed.chamber.services.partneruser.PartnerUserClientCredentials
 import com.echoed.chamber.services.partner.RequestTopics
 import com.echoed.chamber.domain.Topic
 import com.echoed.chamber.services.partneruser.UpdatePartnerCustomization
+import com.echoed.chamber.services.state.QueryStoriesForPartner
 import com.echoed.chamber.services.partner.RequestPartnerFollowers
-import com.echoed.chamber.domain.views.Feed
+import com.echoed.chamber.domain.StoryState
+import views.content.ContentDescription
+import views.context.PartnerContext
+import views.Feed
+import com.echoed.chamber.services.state.QueryStoriesForPartnerResponse
 import com.echoed.chamber.services.echoeduser.EchoedUserClientCredentials
 import com.echoed.chamber.services.partneruser.GetPartnerSettings
 import com.echoed.chamber.services.partner.PutTopicResponse
 import com.echoed.chamber.services.partner.RequestPartnerContent
+import com.echoed.chamber.services.partneruser.UpdatePartnerCustomizationResponse
 import com.echoed.chamber.services.echoeduser.FollowPartnerResponse
 import com.echoed.chamber.services.partner.PartnerClientCredentials
 import com.echoed.chamber.services.echoeduser.PartnerFollower
-import com.echoed.chamber.domain.views.context.PartnerContext
 import com.echoed.chamber.services.partner.RequestTopicsResponse
 import com.echoed.chamber.services.partner.RequestPartnerFollowersResponse
-import com.echoed.chamber.services.state.{QueryStoriesForPartnerResponse, QueryStoriesForPartner}
 
 
 @Controller
@@ -53,6 +72,7 @@ class PartnerController extends EchoedController {
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
         getPartnerContent(Content.defaultContentDescription, partnerId, contentPath, startsWith, page, origin)
+
     }
 
     @RequestMapping(value = Array("/{partnerId}/{contentType}"), method=Array(RequestMethod.GET))
@@ -90,8 +110,8 @@ class PartnerController extends EchoedController {
             case RequestPartnerContentResponse(_, Right(partnerFeed)) => result.setResult(partnerFeed)
         }
         result
-    }
 
+    }
 
     @RequestMapping(value = Array("/{partnerId}/followers"), method = Array(RequestMethod.GET))
     @ResponseBody

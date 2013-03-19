@@ -5,6 +5,28 @@
         <div class="field-body clearfix">
             <div class="story-summary">
                 <div id="story-summary-body">
+                    <div id="story-summary-cover">
+                        <div class="story-detail-row clearfix">
+                            <div class="story-input-label">
+                                Website
+                            </div>
+                            <div class="story-input-content">
+                                {{#context}}{{partner.name}}{{/context}}
+                            </div>
+                        </div>
+                        {{#context}}
+                        {{#pageTitle}}
+                        <div class="story-detail-row clearfix">
+                            <div class="story-input-label">
+                                Page
+                            </div>
+                            <div class="story-input-content">
+                                {{pageTitle}}
+                            </div>
+                        </div>
+                        {{/pageTitle}}
+                        {{/context}}
+                    </div>
                 </div>
                 <div id="story-summary-buttons">
                     <span id="chapter-add" class="field-submit" act="add">Add Another Topic</span>

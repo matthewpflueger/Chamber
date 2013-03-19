@@ -21,7 +21,8 @@
             background-color: #262626;
         }
         #title-text{
-            @include fontTextBold(24px, #FFF);
+            @include fontTextBold(14px, #FFF);
+            line-height: 34px;
         }
         #title-body{
             background-color: rgba(255, 255, 255, 0.9);
@@ -60,32 +61,35 @@
                     .active{
                         font-weight:    bold;
                         &:hover {
-                            color:      $colorEC;
+                            color:              $colorEC;
+                            background-color:   #CCC;
                         }
                     }
                 }
-
             }
 
             #title-content{
-                float: right;
-                margin-right: 40px;
+                float:          right;
+                margin-right:   40px;
+
                 .title-content-label{
-                    width: 130px;
-                    display: inline-block;
-                    text-align: left;
-                    margin-right: 5px;
+
+                    width:          130px;
+                    display:        inline-block;
+                    text-align:     left;
+                    margin-right:   5px;
                 }
 
                 .title-content-text{
-                    font-weight: bold;
+                    font-weight:    bold;
                 }
                 li{
-                    display: block;
-                    width: 450px;
-                    white-space: nowrap;
-                    overflow-x: hidden;
-                    text-overflow: ellipsis;
+                    display:        block;
+                    width:          300px;
+                    white-space:    nowrap;
+                    overflow-x:     hidden;
+                    text-overflow:  ellipsis;
+                    border-bottom:  1px solid #CCC;
                 }
             }
             ul{
@@ -149,6 +153,7 @@
 }
 
 #title-action-button{
-    @include        buttonRed();
+    @include        buttonGreen();
+    margin:         3px 0px;
     float: right;
 }
