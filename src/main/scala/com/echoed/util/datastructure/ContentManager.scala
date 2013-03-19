@@ -28,7 +28,9 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription], defau
 
     def updateContent(c: Content): Unit = initContentTree(c.contentDescription).updateContent(c)
 
-    def getContentList = cache.values.map(_.getInfoMap).toList
+    def getContentList(contentPath: Option[String] = None, startsWith: Option[Boolean] = None) = cache.values.map(_.getInfoMap(contentPath, startsWith)).toList
+
+    def getContentList = cache.values.map(_.getInfoMap()).toList
 
     def getContent(
             c: ContentDescription,

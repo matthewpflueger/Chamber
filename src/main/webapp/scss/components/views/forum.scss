@@ -43,10 +43,12 @@
         .forumComments{
             @include fontTextBold(12px, #AAA);
         }
-        .forumPartner{
-            float: right;
-            @include fontTextBold(12px, #AAA);
-            text-decoration: none;
+        .forumPartner, .forumPage{
+            @include            fontTextBold(12px, #AAA);
+            float:              right;
+            text-decoration:    none;
+            margin-left:        10px;
+
             &:hover{
                 color: $colorEC;
             }

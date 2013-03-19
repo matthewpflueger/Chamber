@@ -45,9 +45,16 @@
             </div>
             <div id="story-user-follow">
             </div>
-            <a href="{{partnerLink}}" class="story-link" id="story-from-text">
-                More from {{story.partner.name}}
-            </a>
+            <div id="story-from-text">
+                <a href="{{partnerLink}}">
+                    More from {{story.partner.name}}
+                </a><br/>
+                {{#story.story.contentPath}}
+                <a href="{{partnerLink}}/page/{{story.story.contentPath}}">
+                    {{story.story.contentPageTitle}}
+                </a>
+                {{/story.story.contentPath}}
+            </div>
         </div>
         <div id="story-footer">
             <div id="story-comments">

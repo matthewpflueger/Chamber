@@ -62,7 +62,7 @@ class PartnerService(
             contentType,
             getStats ::: contentManager.getStats,
             content.highlights,
-            contentManager.getContentList)
+            contentManager.getContentList(page, Some(false)))
     }
 
     private def getStats = {

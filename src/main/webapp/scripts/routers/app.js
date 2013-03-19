@@ -55,16 +55,20 @@ define(
                 if(type) {
                     url += "/" + type;
                 }
-                this.requestFeed(url, function(jsonUrl, data){
-                    self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
-                    if(Echoed.pageTitle) {
-                        self.modelContext.setPage(path, Echoed.pageTitle);
-                        Echoed.pageTitle = null;
-                        Echoed.path =  null;
-                    }
-                }, {
-                    contentPath: path
-                });
+                var page = window.location.hash;
+                if(this.page !== page) {
+                    this.page = page;
+                    this.requestFeed(url, function(jsonUrl, data){
+                        self.loadPage("partner", { jsonUrl: jsonUrl, data: data, personal: true } );
+                        if(Echoed.pageTitle) {
+                            self.modelContext.setPage(path, Echoed.pageTitle);
+                            Echoed.pageTitle = null;
+                            Echoed.path =  null;
+                        }
+                    }, {
+                        contentPath: path
+                    });
+                }
             },
             content: function(context, id, type, type2){
                 var self =      this;
