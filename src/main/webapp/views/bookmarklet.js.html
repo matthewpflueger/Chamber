@@ -14,7 +14,7 @@
     a.href =    url;
     domain =    a.hostname;
     path =      encodeURIComponent(a.pathname.split("#")[0]);
-    title  =    encodeURIComponent(title.trim();
+    title  =    encodeURIComponent(title.trim());
 
     var es = document.createElement('script'); es.type = 'text/javascript'; es.async = true;
     var html = "{{https.site}}/app/js?pid=" + domain + "&path=" + path + "&title=" + title;
