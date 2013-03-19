@@ -78,7 +78,7 @@ case class ContentTree(c: ContentDescription) {
         val nextPage = if (pg * pageSize + pageSize <= content.size) Some(pg + 1) else None
 
         if (everything) ContentTreeContext(
-                content,
+                content.slice(start, start + pageSize),
                 nextPage,
                 commentCount,
                 viewCount,

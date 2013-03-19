@@ -53,7 +53,6 @@ define(
                 var self = this;
                 var url = "partner/" + id;
                 var page = url;
-                var path = path.split('#')[0];
                 if(this.page !== page) {
                     this.page = page;
                     this.requestFeed(url, function(jsonUrl, data){
@@ -63,6 +62,8 @@ define(
                             Echoed.pageTitle = null;
                             Echoed.path =  null;
                         }
+                    }, {
+                        contentPath: path
                     });
                 }
             },
@@ -80,7 +81,7 @@ define(
                     });
                 }
             },
-            requestFeed: function(endPoint, callback){
+            requestFeed: function(endPoint, callback, postData){
                 var self = this;
                 var jsonUrl = this.properties.urls.api + '/api/' + endPoint;
                 var timeStamp = new Date().getTime().toString();
@@ -89,6 +90,7 @@ define(
                 utils.AjaxFactory({
                     url: jsonUrl,
                     dataType: 'json',
+                    data: postData,
                     success: function(data){
                         self.EvAg.trigger('infiniteScroll/unlock');
                         if(self.currentRequest === timeStamp) callback(jsonUrl, data, timeStamp);

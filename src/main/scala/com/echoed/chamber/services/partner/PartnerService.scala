@@ -211,9 +211,9 @@ class PartnerService(
                 val content =   contentManager.getDefaultContent(page)
                 val _type =     contentManager.getDefaultContentType
                 val sf =        new Feed(
-                                    partnerContext(_type),
-                                    content._1,
-                                    content._2)
+                                    partnerContext(_type, content),
+                                    content.content,
+                                    content.nextPage)
                 sender ! RequestPartnerDefaultContentResponse(msg, Right(sf))
             }
 
