@@ -110,7 +110,7 @@ function service_cmd() {
 
         startt)
             service_cmd "start"
-            tail -f std.out
+            tail -f errors.log 
             ;;
 
         stop)
