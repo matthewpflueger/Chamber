@@ -11,9 +11,9 @@ require.config({
         'jqueryUI'             : 'libs/jquery/jquery-ui-1.9.1.custom',
         'jqueryUIFull'         : 'libs/jquery/jquery-ui-1.9.2.full',
         'expanding'            : 'libs/jquery/expanding-20121116',
-        'cloudinary'           : 'libs/jquery/jquery.cloudinary-1.0.1',
-        'fileUploader'         : 'libs/jquery/jquery.fileupload-5.10.1',
-        'iFrameTransport'      : 'libs/jquery/jquery.iframe-transport-1.4',
+        'cloudinary'           : 'libs/jquery/jquery.cloudinary-1.0.4',
+        'fileUploader'         : 'libs/jquery/jquery.fileupload-5.19.8',
+        'iFrameTransport'      : 'libs/jquery/jquery.iframe-transport-1.6.1',
         'isotope'              : 'libs/jquery/jquery.isotope-1.5.21',
         'isotopeConfig'        : 'jquery.isotope.config',
 
