@@ -18,9 +18,10 @@ case class Partner(
         logo: String,
         @transient secret: String,
         category: String,
-        cloudPartnerId: String) extends DomainObject {
+        cloudPartnerId: String,
+        bookmarklet: Boolean) extends DomainObject {
 
-    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "")
+    def this() = this("", 0L, 0L, "", "", "", "", "", "", "", "", true)
 
     def this(
             name: String,
@@ -39,7 +40,8 @@ case class Partner(
         logo,
         UUID(),
         category,
-        null)
+        null,
+        true)
 
     def this(name: String) = this(
         name,
