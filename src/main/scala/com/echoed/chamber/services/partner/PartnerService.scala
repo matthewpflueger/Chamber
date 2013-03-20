@@ -42,7 +42,7 @@ class PartnerService(
     private var followedByUsers = List[Follower]()
 
 
-    private val contentManager = new ContentManager(Content.allContentDescriptions)
+    private var contentManager = new ContentManager(Content.allContentDescriptions)
 
     private var contentLoaded = false
 
@@ -154,6 +154,10 @@ class PartnerService(
             followedByUsers = pss.followedByUsers
             topics = pss.topics
             customization = pss.partnerSettings.makeCustomizationOptions
+            contentManager =
+                if (partner.bookmarklet) new ContentManager(Content.existingPartnerContentDescriptions)
+                else contentManager
+
             becomeOnlineAndRegister
     }
 

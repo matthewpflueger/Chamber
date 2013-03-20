@@ -33,6 +33,8 @@ object Content {
 
     val allContentDescriptions = photoContentDescription :: newsContentDescription :: defaultContentDescriptions
 
+    val existingPartnerContentDescriptions = List(storyContentDescription, photoContentDescription)
+
     def getContentDescription(contentType: String) = allContentDescriptions
             .filter(_.isContentDescription(contentType))
             .headOption
