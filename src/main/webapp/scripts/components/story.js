@@ -151,7 +151,7 @@ define(
                     profilePhotoUrl:    utils.getProfilePhotoUrl(this.modelStory.get("echoedUser"), this.properties.urls),
                     isWidget:           this.properties.isWidget,
                     isMine:             this.modelUser.is(this.modelStory.get("echoedUser").id),
-                    userLink:           "#user/" + this.modelStory.get("echoedUser").id,
+                    userLink:           "#user/" + this.modelStory.get("echoedUser").screenName,
                     partnerLink:        "#partner/" + this.modelStory.get("partner").id
                 };
 

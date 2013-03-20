@@ -12,7 +12,7 @@ case class UserContext(
     content:        List[Map[String, Any]]) extends Context {
 
     val id =            echoedUser.id
-    val title =         echoedUser.name
+    val title =         echoedUser.screenName
     val contextType =   "user"
 
     def this(echoedUser:    EchoedUser,
