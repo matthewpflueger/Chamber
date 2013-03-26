@@ -21,26 +21,21 @@
 @import "title";
 @import "select";
 @import "views/forum";
+@import "views/background";
 
 
 body, html{
     height: 100%;
+
+
 }
 
 body {
-
     @include transition;
     &.noScroll{
         overflow: hidden;
     }
-    &.black{
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-    &.blue{
-        background-image: image-url("bk_noise_dark.jpg");
-    }
 }
-
 
 #header-container{
     @include transition;
@@ -349,4 +344,12 @@ body {
 
 #content {
     padding: 0px 10px 25px 10px;
+}
+
+#container {
+    background-image: image-url("bk_noise_dark.jpg");
+    min-height:       100%;
+    &.black {
+        background-color:   rgba(0, 0, 0, 0.4);
+    }
 }

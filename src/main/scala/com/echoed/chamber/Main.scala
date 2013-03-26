@@ -6,26 +6,16 @@ import org.springframework.web.context.support.XmlWebApplicationContext
 import org.eclipse.jetty.servlet.{DefaultServlet, ServletContextHandler}
 import org.springframework.web.servlet.DispatcherServlet
 import org.eclipse.jetty.util.component.LifeCycle
-import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.util.thread.ExecutorThreadPool
 import org.eclipse.jetty.server.nio.SelectChannelConnector
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector
-import org.eclipse.jetty.webapp.WebAppContext
 import com.echoed.chamber.filters.{JsonpCallbackFilter, AccessControlHeadersFilter, CacheControlFilter, CrawlFilter}
 import ch.qos.logback.access.jetty.RequestLogImpl
-
-//import org.eclipse.jetty.server.{Server, HttpConnectionFactory, SslConnectionFactory, ConnectionFactory, Connector, ServerConnector}
-import org.eclipse.jetty.io.EndPoint
-//import org.eclipse.jetty.http.HttpVersion
-import org.eclipse.jetty.server.handler.{RequestLogHandler, HandlerCollection}
+import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler, RequestLogHandler, HandlerCollection}
 import javax.servlet.{MultipartConfigElement, ServletConfig, DispatcherType, ServletContext}
 import java.util.{Properties, Locale, EnumSet}
 import org.springframework.web.context.{ContextLoaderListener, ConfigurableWebApplicationContext}
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor
-import java.lang.annotation.Annotation
-import org.springframework.context.{ApplicationEvent, ApplicationListener, ApplicationContext, MessageSourceResolvable}
-import org.springframework.core.env.ConfigurableEnvironment
 
 
 object Main {
@@ -58,6 +48,18 @@ object Main {
         requestLog.setResource("/logback-access.xml")
         val requestLogHandler = new RequestLogHandler()
         requestLogHandler.setRequestLog(requestLog)
+
+        if(serverProps.getProperty("envType") == "dev"){
+            val resourceHandler: ResourceHandler = new ResourceHandler()
+            resourceHandler.setDirectoriesListed(false)
+            resourceHandler.setResourceBase(serverProps.getProperty("resourceBase"))
+
+            val contextHandler: ContextHandler = new ContextHandler()
+            contextHandler.setContextPath("/resources")
+            contextHandler.setHandler(resourceHandler)
+            handlerCollection.addHandler(contextHandler)
+        }
+
         handlerCollection.addHandler(requestLogHandler)
 
         val servletContextHandler = new ServletContextHandler(
@@ -65,6 +67,9 @@ object Main {
                 "/" + serverProps.getProperty("context"),
                 false,
                 false)
+
+
+
 
 
         servletContextHandler.addLifeCycleListener(new LifeCycle.Listener {

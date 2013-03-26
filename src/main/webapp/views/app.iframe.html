@@ -13,21 +13,24 @@
     {{#scriptTag}}applet.iframe.js{{/scriptTag}}
     {{/jsHead}}
 </head>
-<body class="blue" >
-<div id='header-container'></div>
-<div id="nav-container" class="clearfix white"></div>
-<div id="item-container"></div>
-<div id="field-container"></div>
-<div id="login-container"></div>
-<div id="echoed-exhibit-container">
-    <div id="content">
-        <div id="title-container"></div>
-        <div id='exhibit'></div>
-        <div id="infiniteScroll" style="display:none;">
-            Loading <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
+<body>
+    <iframe sandbox="" id="background" frameborder="0" scrolling="no" ></iframe>
+    <div id="container">
+        <div id='header-container'></div>
+        <div id="nav-container" class="clearfix white"></div>
+        <div id="item-container"></div>
+        <div id="field-container"></div>
+        <div id="login-container"></div>
+        <div id="echoed-exhibit-container">
+            <div id="content">
+                <div id="title-container"></div>
+                <div id='exhibit'></div>
+                <div id="infiniteScroll" style="display:none;">
+                    Loading <img align="absmiddle" src="{{urls.images}}/bk_loader_circle.gif" />
+                </div>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>
 <script type="text/javascript">
