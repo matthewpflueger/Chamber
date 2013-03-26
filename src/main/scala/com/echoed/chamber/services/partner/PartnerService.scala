@@ -155,7 +155,7 @@ class PartnerService(
             topics = pss.topics
             customization = pss.partnerSettings.makeCustomizationOptions
             contentManager =
-                if (partner.bookmarklet) new ContentManager(Content.existingPartnerContentDescriptions)
+                if (!partner.bookmarklet) new ContentManager(Content.existingPartnerContentDescriptions)
                 else contentManager
 
             becomeOnlineAndRegister
@@ -201,27 +201,13 @@ class PartnerService(
             getContent
 
         case msg @ RequestPartnerContent(_, origin, contentType, contentPath, startsWith, page) =>
-            val content = contentManager.getContent(contentType, page, contentPath, startsWith)
+            val cType = contentType.getOrElse(contentManager.getDefaultContentType)
+            val content = contentManager.getContent(cType, page, contentPath, startsWith)
             val sf = new Feed(
-                    partnerContext(contentType, content, contentPath),
+                    partnerContext(cType, content, contentPath),
                     content.content,
                     content.nextPage)
             sender ! RequestPartnerContentResponse(msg, Right(sf))
-
-        case msg @ RequestPartnerDefaultContent(_, page, origin) =>
-            if(!contentLoaded) {
-                stash()
-                getContent
-            } else {
-                val content =   contentManager.getDefaultContent(page)
-                val _type =     contentManager.getDefaultContentType
-                val sf =        new Feed(
-                                    partnerContext(_type, content),
-                                    content.content,
-                                    content.nextPage)
-                sender ! RequestPartnerDefaultContentResponse(msg, Right(sf))
-            }
-
 
         case msg : RequestPartnerFollowers =>
             val feed = new Feed(

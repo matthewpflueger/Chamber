@@ -40,12 +40,11 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription], defau
         cache.get(c).map(_.getContentFromTree(contentPath, startsWith, page)).getOrElse(ContentTreeContext())
     }
 
-    def getDefaultContent(page: Int) = {
-        getContent(defaultContentDescription, Option(page))
-    }
-
     def getDefaultContentType = {
-        defaultContentDescription
+        cache.reduceLeft(
+            (k1, k2) => if(k1._2.count >= k2._2.count || k2._1.singular == "Photo") k1 else k2
+        )._1
+
     }
 
     def getAllContent = cache.values.foldLeft(List[Content]())((l, r) => r.getAllContentFromTree ::: l)

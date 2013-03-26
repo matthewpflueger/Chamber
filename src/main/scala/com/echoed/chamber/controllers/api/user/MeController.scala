@@ -90,7 +90,7 @@ class MeController extends EchoedController {
     def getFeedStories(
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             eucc: EchoedUserClientCredentials) = {
-        getFeedContent(Content.defaultContentDescription, page, eucc)
+        getFeedContent(None, page, eucc)
     }
 
     @RequestMapping(value = Array("/feed/{contentType}"), method = Array(RequestMethod.GET))
@@ -99,10 +99,10 @@ class MeController extends EchoedController {
             @PathVariable(value = "contentType") contentType: String,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             eucc: EchoedUserClientCredentials) = {
-        getFeedContent(Content.getContentDescription(contentType), page, eucc)
+        getFeedContent(Option(Content.getContentDescription(contentType)), page, eucc)
     }
 
-    def getFeedContent(contentType: ContentDescription,
+    def getFeedContent(contentType: Option[ContentDescription],
                        page: Int,
                        eucc: EchoedUserClientCredentials) = {
 
@@ -120,7 +120,7 @@ class MeController extends EchoedController {
     def getOwnStories(
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             eucc: EchoedUserClientCredentials) = {
-        getOwnContent(Content.defaultContentDescription, page, eucc)
+        getOwnContent(None, page, eucc)
     }
 
     @RequestMapping(value = Array("/{contentType}"), method = Array(RequestMethod.GET))
@@ -130,10 +130,10 @@ class MeController extends EchoedController {
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             eucc: EchoedUserClientCredentials) = {
 
-        getOwnContent(Content.getContentDescription(contentType), page, eucc)
+        getOwnContent(Option(Content.getContentDescription(contentType)), page, eucc)
     }
 
-    def getOwnContent(contentType: ContentDescription,
+    def getOwnContent(contentType: Option[ContentDescription],
                       page: Int,
                       eucc: EchoedUserClientCredentials) = {
 

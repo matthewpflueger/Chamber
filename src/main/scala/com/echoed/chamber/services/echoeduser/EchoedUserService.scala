@@ -355,12 +355,13 @@ class EchoedUserService(
             getContent
 
         case msg @ RequestOwnContent(_, contentType, page) =>
-            val content = privateContentManager.getContent(contentType, page)
+            val cType = contentType.getOrElse(privateContentManager.getDefaultContentType)
+            val content = privateContentManager.getContent(cType, page)
             val stats = getStats ::: privateContentManager.getStats
             val cf = new Feed(
                         new SelfContext(
                             echoedUser,
-                            contentType,
+                            cType,
                             stats,
                             content.highlights,
                             privateContentManager.getContentList
@@ -374,10 +375,11 @@ class EchoedUserService(
             getCustomFeed
 
         case msg @ RequestCustomUserFeed(_, contentType, page) =>
-            val content = followingContentManager.getContent(contentType, page)
+            val cType = contentType.getOrElse(followingContentManager.getDefaultContentType)
+            val content = followingContentManager.getContent(cType, page)
             val sf = new Feed(
                         new PersonalizedContext(
-                            contentType,
+                            cType,
                             followingContentManager.getStats,
                             content.highlights,
                             followingContentManager.getContentList
@@ -401,8 +403,9 @@ class EchoedUserService(
             getContent
 
         case msg @ RequestUserContentFeed(eucc, contentType, page) =>
-            val content =   publicContentManager.getContent(contentType, page)
-            val sf =        new Feed(userContext(contentType), content.content, content.nextPage)
+            val cType =     contentType.getOrElse(publicContentManager.getDefaultContentType)
+            val content =   publicContentManager.getContent(cType, page)
+            val sf =        new Feed(userContext(cType), content.content, content.nextPage)
             sender ! RequestUserContentFeedResponse(msg, Right(sf))
 
 
