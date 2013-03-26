@@ -5,11 +5,11 @@ import org.springframework.stereotype.Controller
 import com.echoed.chamber.services.echoeduser._
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.context.request.async.DeferredResult
 import javax.annotation.{Resource, Nullable}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.JavaConversions._
 import java.util.{List => JList}
+import reflect.BeanProperty
 
 
 @Controller
@@ -17,6 +17,7 @@ import java.util.{List => JList}
 class ExhibitController extends EchoedController {
 
     @Resource(name = "mobileUserAgents") var mobileUserAgents: JList[String] = _
+    @BeanProperty var bookmarkletName: String = _
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
@@ -31,14 +32,37 @@ class ExhibitController extends EchoedController {
             .getOrElse {
                 log.debug("User Agent: {}", userAgent)
 
-                val modelAndView = if(mobileUserAgents.exists(userAgent.contains(_))){
-                    new ModelAndView(v.mobileUserView)
-                } else {
-                    new ModelAndView(v.appView)
+                Option(eucc).map({
+                    ec: EchoedUserClientCredentials =>
+                        val modelAndView = new ModelAndView(v.appView)
+                        modelAndView.addObject("echoedUser", ec)
+                        modelAndView
+                }).getOrElse {
+                    val modelAndView = new ModelAndView(v.whatIsEchoedView)
+                    modelAndView.addObject("bookmarkletName", bookmarkletName)
+                    if(userAgent.contains("Chrome")){
+                        modelAndView.addObject("isChrome", true)
+                    } else if(userAgent.contains("Safari")){
+                        modelAndView.addObject("isSafari", true)
+                    } else if(userAgent.contains("MSIE")){
+                        modelAndView.addObject("isIE", true)
+                    } else if(userAgent.contains("Firefox")){
+                        modelAndView.addObject("isFirefox", true)
+                    }
+                    modelAndView
                 }
-
-                Option(eucc).map(modelAndView.addObject("echoedUser", _)).getOrElse(modelAndView)
             }
+    }
+
+    @RequestMapping(method = Array(RequestMethod.GET), value = Array("/explore"))
+    def app(
+            @Nullable eucc: EchoedUserClientCredentials,
+            request: HttpServletRequest) = {
+
+        Option(eucc)
+            .map(_ => new ModelAndView("redirect:%s" format v.siteUrl))
+            .getOrElse(new ModelAndView(v.appView))
+
     }
 
     @RequestMapping(method = Array(RequestMethod.GET), value = Array("/{partnerHandle}"))

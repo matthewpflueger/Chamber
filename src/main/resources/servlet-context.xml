@@ -245,6 +245,11 @@
         <property name="facebookAppNameSpace" value="${facebook.appNameSpace}" />
     </bean>
 
+    <!--suppress DuplicateBeanNamesInspection -->
+    <bean id="exhibitController" class="com.echoed.chamber.controllers.ExhibitController">
+        <property name="bookmarkletName" value="${bookmarklet.name}" />
+    </bean>
+
     <!--suppress DuplicatedBeanNamesInspection -->
     <bean id="staticController" class="com.echoed.chamber.controllers.StaticController">
         <property name="bookmarkletName"  value="${bookmarklet.name}" />
