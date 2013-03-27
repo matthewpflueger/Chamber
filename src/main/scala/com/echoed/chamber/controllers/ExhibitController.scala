@@ -32,7 +32,7 @@ class ExhibitController extends EchoedController {
 
             Option(eucc).map({
                 ec: EchoedUserClientCredentials =>
-                    val modelAndView = new ModelAndView(v.appView)
+                    val modelAndView = new ModelAndView(v.appIFrameView)
                     modelAndView.addObject("echoedUser", ec)
                     modelAndView
             }).getOrElse {
@@ -59,7 +59,7 @@ class ExhibitController extends EchoedController {
                        @RequestHeader("User-Agent") userAgent: String,
                        request: HttpServletRequest) = {
 
-        val modelAndView = new ModelAndView(v.appView)
+        val modelAndView = new ModelAndView(v.appIFrameView)
         Option(eucc).map({ modelAndView.addObject("echoedUser", _)})
         modelAndView
 
