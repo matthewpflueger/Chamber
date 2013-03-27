@@ -34,7 +34,7 @@ define(
                 "explore/:type":                                "explore",
                 "partner/:id(/:contentType)/page/*path":        "partnerPage",
                 ":context/:id(/:contentType)":                  "content",
-                ":context/:id/":                                "content",
+                ":context/:id":                                 "content",
                 ":context/:id(/:type)(/:type2)":                "content"
             },
             fix: function(){

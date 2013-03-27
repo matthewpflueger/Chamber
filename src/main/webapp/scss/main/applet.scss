@@ -347,9 +347,10 @@ body {
 }
 
 #container {
-    background-image: image-url("bk_noise_dark.jpg");
+    background: image-url("bk_noise_dark.jpg");
     min-height:       100%;
     &.black {
-        background-color:   rgba(0, 0, 0, 0.4);
+        background:   rgba(0, 0, 0, 0.4);
     }
 }
+

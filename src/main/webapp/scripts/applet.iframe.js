@@ -116,10 +116,9 @@ require(
                 // Get the anchor href and protcol
                 var href = $(this).attr("href");
                 var protocol = this.protocol + "//";
-
                 // Ensure the protocol is not part of URL, meaning its relative.
                 // Stop the event bubbling to ensure the link will not cause a page refresh.
-                if (href.slice(protocol.length) !== protocol) {
+                if (href.slice(0, protocol.length) !== protocol) {
                     evt.preventDefault();
 
                     // Note by using Backbone.history.navigate, router events will not be
