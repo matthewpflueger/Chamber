@@ -1,7 +1,7 @@
 package com.echoed.util.datastructure
 
 import com.echoed.chamber.domain.views.content.{ContentDescription, Content}
-import collection.immutable.TreeMap
+import collection.immutable.{HashMap, TreeMap}
 
 class ContentManager(defaultContentDescriptions: List[ContentDescription], defaultContentDescription: ContentDescription = Content.discussionContentDescription) {
 
@@ -11,11 +11,13 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription], defau
         }
     }
 
-    private var cache =  TreeMap[ContentDescription, ContentTree]()(ContentOrdering)
+    private var cache =         TreeMap[ContentDescription, ContentTree]()(ContentOrdering)
+    private var pageToTitle =   HashMap[String, String]()
 
     defaultContentDescriptions.map(initContentTree(_))
 
     def this() = this(List())
+
 
     def initContentTree(c: ContentDescription) =
         cache.get(c).getOrElse {
@@ -26,11 +28,21 @@ class ContentManager(defaultContentDescriptions: List[ContentDescription], defau
 
     def deleteContent(c: Content): Unit = cache.get(c.contentDescription).foreach(_.deleteContent(c))
 
-    def updateContent(c: Content): Unit = initContentTree(c.contentDescription).updateContent(c)
+    def updateContent(c: Content): Unit = {
+        c.contentPath.map{
+            _ =>
+                pageToTitle += (c.contentPath.get -> c.contentPageTitle.getOrElse(null))
+        }
+        initContentTree(c.contentDescription).updateContent(c)
+
+
+    }
 
     def getContentList(contentPath: Option[String] = None, startsWith: Option[Boolean] = None) = cache.values.map(_.getInfoMap(contentPath, startsWith)).toList
 
     def getContentList = cache.values.map(_.getInfoMap()).toList
+
+    def getPageTitle(path: String) = pageToTitle.get(path).getOrElse(null)
 
     def getContent(
             c: ContentDescription,
