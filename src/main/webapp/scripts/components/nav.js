@@ -13,18 +13,10 @@ define(
                 this.modelPartner.on("change", this.changePartner);
                 this.render();
             },
-            events:{
-                "click li": "click"
-            },
             render: function(){
                 var view = this.modelUser.toJSON();
                 var template = templateNav(view);
                 this.element.html(template);
-            },
-            click: function(e){
-                this.element.find("li").removeClass("current");
-                $(e.target).addClass("current");
-                window.location.hash = $(e.target).attr("href");
             },
             changePartner: function(){
                 var partner = this.modelPartner.toJSON();

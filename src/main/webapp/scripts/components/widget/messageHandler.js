@@ -25,20 +25,23 @@ define(
                 } else if (window.attachEvent) {
                     window.attachEvent('onmessage', this.receiveMessageResponse);
                 }
-
-                this.socket = new easyXDM.Socket({
-                    onMessage: function(message, origin){
-                        try{
-                            var msg = JSON.parse(message);
-                            switch(msg.type){
-                                case 'hash':
-                                    window.location.hash = msg.data;
-                                    break;
+                try {
+                    this.socket = new easyXDM.Socket({
+                        onMessage: function(message, origin){
+                            try{
+                                var msg = JSON.parse(message);
+                                switch(msg.type){
+                                    case 'hash':
+                                        window.location.hash = msg.data;
+                                        break;
+                                }
+                            } catch(e){
                             }
-                        } catch(e){
                         }
-                    }
-                });
+                    });
+                } catch(e){
+
+                }
                 window.onhashchange = function(){
                     self.sendMessage("hashChange", window.location.hash);
                 }
@@ -47,7 +50,12 @@ define(
                 this.sendMessage("contextChange", this.modelPartner.getPartnerPath());
             },
             sendMessage: function(type, data){
-                this.socket.postMessage(JSON.stringify({ type: type, data: data}));
+                try{
+                    this.socket.postMessage(JSON.stringify({ type: type, data: data}));
+                } catch(e){
+
+                }
+
             },
             receiveMessageResponse:function (response) {
                 var self = this;

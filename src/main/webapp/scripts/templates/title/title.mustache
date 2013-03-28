@@ -47,7 +47,7 @@
         <div id="title-content">
             <ul>
                 {{#highlights}}
-                    <li><span class="title-content-label">{{name}}</span><a class="title-content-text" href="#!story/{{value.story.id}}">{{value.story.title}}</a></li>
+                    <li><span class="title-content-label">{{name}}</span><a class="title-content-text" href="story/{{value.story.id}}">{{value.story.title}}</a></li>
                 {{/highlights}}
             </ul>
         </div>
@@ -55,7 +55,7 @@
     <div id="title-nav" class="clearfix">
         <ul>
             {{#c}}
-                <li {{#isActive}}class="selected"{{/isActive}} ><a href="#{{baseUrl}}{{endPoint}}{{#page}}/page/{{page}}{{/page}}">{{name}}: {{count}}</a></li>
+                <li {{#isActive}}class="selected"{{/isActive}} ><a href="{{baseUrl}}{{endPoint}}{{#page}}/page/{{page}}{{/page}}">{{name}}: {{count}}</a></li>
             {{/c}}
         </ul>
     </div>

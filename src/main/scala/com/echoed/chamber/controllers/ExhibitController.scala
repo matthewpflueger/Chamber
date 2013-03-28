@@ -21,60 +21,48 @@ class ExhibitController extends EchoedController {
 
     @RequestMapping(method = Array(RequestMethod.GET))
     def exhibit(
-            @RequestParam(value="app", required = false) appType: String,
             @Nullable eucc: EchoedUserClientCredentials,
             @RequestHeader("User-Agent") userAgent: String,
             request: HttpServletRequest) = {
-
         Option(request.getAttribute("isSecure"))
-            .filter(_ == true)
-            .map(_ => new ModelAndView("redirect:%s" format v.siteUrl))
-            .getOrElse {
-                log.debug("User Agent: {}", userAgent)
+                .filter(_ == true)
+                .map(_ => new ModelAndView("redirect:%s" format v.siteUrl))
+                .getOrElse {
+            log.debug("User Agent: {}", userAgent)
 
-                Option(eucc).map({
-                    ec: EchoedUserClientCredentials =>
-                        val modelAndView = new ModelAndView(v.appView)
-                        modelAndView.addObject("echoedUser", ec)
-                        modelAndView
-                }).getOrElse {
-                    val modelAndView = new ModelAndView(v.whatIsEchoedView)
-                    modelAndView.addObject("bookmarkletName", bookmarkletName)
-                    if(userAgent.contains("Chrome")){
-                        modelAndView.addObject("isChrome", true)
-                    } else if(userAgent.contains("Safari")){
-                        modelAndView.addObject("isSafari", true)
-                    } else if(userAgent.contains("MSIE")){
-                        modelAndView.addObject("isIE", true)
-                    } else if(userAgent.contains("Firefox")){
-                        modelAndView.addObject("isFirefox", true)
-                    }
+            Option(eucc).map({
+                ec: EchoedUserClientCredentials =>
+                    val modelAndView = new ModelAndView(v.appIFrameView)
+                    modelAndView.addObject("echoedUser", ec)
                     modelAndView
+            }).getOrElse {
+                val modelAndView = new ModelAndView(v.whatIsEchoedView)
+                modelAndView.addObject("bookmarkletName", bookmarkletName)
+                if(userAgent.contains("Chrome")){
+                    modelAndView.addObject("isChrome", true)
+                } else if(userAgent.contains("Safari")){
+                    modelAndView.addObject("isSafari", true)
+                } else if(userAgent.contains("MSIE")){
+                    modelAndView.addObject("isIE", true)
+                } else if(userAgent.contains("Firefox")){
+                    modelAndView.addObject("isFirefox", true)
                 }
+                modelAndView
             }
-    }
-
-    @RequestMapping(method = Array(RequestMethod.GET), value = Array("/explore"))
-    def app(
-            @Nullable eucc: EchoedUserClientCredentials,
-            request: HttpServletRequest) = {
-
-        Option(eucc)
-            .map(_ => new ModelAndView("redirect:%s" format v.siteUrl))
-            .getOrElse(new ModelAndView(v.appView))
+        }
 
     }
 
-    @RequestMapping(method = Array(RequestMethod.GET), value = Array("/{partnerHandle}"))
-    def partnerExhibit(
-            @PathVariable(value = "partnerHandle") partnerHandle: String,
-            request: HttpServletRequest,
-            response: HttpServletResponse) = {
-        log.debug("Redirecting to #partner/{}", partnerHandle)
-        new ModelAndView(
-                v.echoRedirectView,
-                Map("echo" -> Map("landingPageUrl" -> ("%s/#partner/%s" format(v.siteUrl, partnerHandle)))))
-    }
+    @RequestMapping(value = Array("/*", "/**/*"))
+    def default(
+                       @Nullable eucc: EchoedUserClientCredentials,
+                       @RequestHeader("User-Agent") userAgent: String,
+                       request: HttpServletRequest) = {
 
+        val modelAndView = new ModelAndView(v.appIFrameView)
+        Option(eucc).map({ modelAndView.addObject("echoedUser", _)})
+        modelAndView
+
+    }
 
 }

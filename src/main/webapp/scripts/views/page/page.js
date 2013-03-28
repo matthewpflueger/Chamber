@@ -6,7 +6,7 @@ define(
     ],
     function($, Backbone, _){
         return Backbone.View.extend({
-            el: 'body',
+            el: '#container',
             initialize: function(options){
                 _.bindAll(this);
                 this.EvAg = options.EvAg;
@@ -18,13 +18,12 @@ define(
             },
             toggle: function(domain){
                 var partner = this.modelPartner.toJSON();
-                if(partner.name === 'Echoed'){
-                    this.element.addClass("blue")
-                    this.element.removeClass('black');
+                if(partner.name === "Echoed"){
+                    this.element.removeClass("black");
                 } else {
-                    this.element.removeClass('blue');
-                    this.element.addClass('black');
+                    this.element.addClass("black");
                 }
+
             }
         });
     }

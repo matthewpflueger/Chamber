@@ -18,6 +18,7 @@ require(
         'components/nav',
         'views/page/page',
         'views/header/header',
+        'views/background/background',
         'routers/app',
         'models/user',
         'models/context',
@@ -43,6 +44,7 @@ require(
              Nav,
              Page,
              Header,
+             Background,
              Router,
              ModelUser,
              ModelContext,
@@ -95,6 +97,7 @@ require(
             this.page =             new Page(this.options());
             this.router =           new Router(this.options());
             this.header =           new Header(this.options("#header-container"));
+            this.background =       new Background(this.options("#background"));
 
             var iFrameNode = document.createElement('iframe');
 
@@ -107,7 +110,23 @@ require(
 
             this.messageHandler = new MessageHandler(this.options('#echoed-iframe'));
 
-            Backbone.history.start();
+            Backbone.history.start({ pushState: true });
+
+            $(document).delegate("a", "click", function(evt) {
+                // Get the anchor href and protcol
+                var href = $(this).attr("href");
+                var protocol = this.protocol + "//";
+                // Ensure the protocol is not part of URL, meaning its relative.
+                // Stop the event bubbling to ensure the link will not cause a page refresh.
+                if (href.slice(0, protocol.length) !== protocol) {
+                    evt.preventDefault();
+
+                    // Note by using Backbone.history.navigate, router events will not be
+                    // triggered.  If this is a problem, change this to navigate on your
+                    // router.
+                    Backbone.history.navigate(href, true);
+                }
+            });
         });
     }
 );

@@ -89,9 +89,9 @@ define(
                 var target =    $(ev.target);
                 if(!target.is('a')){
                     if(this.modelStory.get("chapters").length > 0){
-                        window.location.hash = "#!story/" +  this.modelStory.id;
+                        Backbone.history.navigate("/story/" + this.modelStory.id)
                     } else {
-                        window.location.hash = "#!write/" +  this.modelStory.id;
+                        Backbone.history.navigate("/write/" + this.modelStory.id)
                     }
                 }
             }
