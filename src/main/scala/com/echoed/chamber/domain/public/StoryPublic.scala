@@ -23,6 +23,7 @@ case class StoryPublic (
 
     val contentType =  story.contentType
     override val contentPath =  story.contentPath
+    override val contentPageTitle = story.contentPageTitle
     val title =        story.title.orNull
 
     def createdOn =    story.createdOn

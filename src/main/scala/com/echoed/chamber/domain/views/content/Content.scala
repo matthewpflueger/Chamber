@@ -11,6 +11,7 @@ trait Content extends FeedItem {
 
     def contentDescription = Content.getContentDescription(contentType)
     def contentPath:  Option[String] = None
+    def contentPageTitle: Option[String] = None
 }
 
 object Content {
