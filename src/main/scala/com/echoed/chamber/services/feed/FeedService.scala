@@ -62,9 +62,12 @@ class FeedService(
 
         case FindAllStoriesResponse(_, Right(all)) => all.map(s => updateContentManager(new StoryPublic(s.asStoryFull.get)))
 
+
         case msg @ RequestPublicContent(contentType, page) =>
-            val content = contentManager.getContent(contentType, page)
-            val feed = new Feed(publicContext(contentType), content.content, content.nextPage)
+            val cType =     contentType.getOrElse(contentManager.getDefaultContentType)
+            val content =   contentManager.getContent(cType, page)
+            val feed =      new Feed(publicContext(cType), content.content, content.nextPage)
+
             sender ! RequestPublicContentResponse(msg, Right(feed))
 
         case msg @ GetContent(contentId, origin) =>

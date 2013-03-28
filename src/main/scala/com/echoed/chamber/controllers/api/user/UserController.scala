@@ -28,7 +28,7 @@ class UserController extends EchoedController {
                     @PathVariable(value ="id") id: String,
                     @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
                     @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
-        getUserContent(id, Content.defaultContentDescription, page, origin)
+        getUserContent(id, None, page, origin)
 
     @RequestMapping(value = Array("/{id}/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
@@ -37,10 +37,10 @@ class UserController extends EchoedController {
             @PathVariable(value = "contentType") contentType: String,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) =
-        getUserContent(id, Content.getContentDescription(contentType), page, origin)
+        getUserContent(id, Option(Content.getContentDescription(contentType)), page, origin)
 
 
-    def getUserContent(id: String, contentDescription: ContentDescription, page: Int, origin: String) = {
+    def getUserContent(id: String, contentDescription: Option[ContentDescription], page: Int, origin: String) = {
         log.debug("Getting feed for {}", id)
 
         val result = new DeferredResult[Feed[UserContext]](null, ErrorResult.timeout)

@@ -71,7 +71,7 @@ class PartnerController extends EchoedController {
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int,
             @RequestParam(value = "origin", required = false, defaultValue = "echoed") origin: String) = {
 
-        getPartnerContent(Content.defaultContentDescription, partnerId, contentPath, startsWith, page, origin)
+        getPartnerContent(null, partnerId, contentPath, startsWith, page, origin)
 
     }
 
@@ -103,7 +103,7 @@ class PartnerController extends EchoedController {
         mp(RequestPartnerContent(
                 new PartnerClientCredentials(partnerId),
                 origin,
-                contentType,
+                Option(contentType),
                 Option(contentPath),
                 Option(startsWith),
                 Option(page))).onSuccess {

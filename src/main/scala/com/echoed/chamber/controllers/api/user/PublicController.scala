@@ -22,16 +22,16 @@ class PublicController extends EchoedController {
     @RequestMapping(value = Array("/public/feed"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getPublicStories(@RequestParam(value = "page", required = false, defaultValue = "0") page: Int) =
-            getPublicContent(Content.defaultContentDescription, page)
+            getPublicContent(None, page)
 
     @RequestMapping(value = Array("/public/feed/{contentType}"), method = Array(RequestMethod.GET))
     @ResponseBody
     def getPublicFeed(
             @PathVariable(value = "contentType") contentType: String,
             @RequestParam(value = "page", required = false, defaultValue = "0") page: Int) =
-        getPublicContent(Content.getContentDescription(contentType), page)
+        getPublicContent(Option(Content.getContentDescription(contentType)), page)
 
-    def getPublicContent(contentType: ContentDescription, page: Int) = {
+    def getPublicContent(contentType: Option[ContentDescription], page: Int) = {
         val result = new DeferredResult[Feed[PublicContext]](null, ErrorResult.timeout)
 
         mp(RequestPublicContent(contentType, Option(page))).onSuccess {
