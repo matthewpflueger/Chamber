@@ -13,3 +13,9 @@ Auto detect text files and perform LF normalization
 *.gif    binary
 *.jpg    binary
 *.jpeg   binary
+
+src/main/webapp/* linguist-vendored
+src/main/compass/* linguist-vendored
+src/main/database/* linguist-vendored
+src/main/ops/* linguist-vendored
+src/main/resources/* linguist-vendored
